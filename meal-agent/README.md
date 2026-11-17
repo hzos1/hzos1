@@ -9,7 +9,7 @@ Register with email and password, including the body profile, then the default p
 | `/register` | Email, password, body profile, and the disclaimer acknowledgement. Not in the tab bar. |
 | `/login` | Email and password. Restores the saved profile. |
 | `/home` | Today's energy from the saved profile, recent meal summary, 30-day update reminder. |
-| `/analyze` | Camera or album. Confirm the dish name and grams, then look up the database. |
+| `/analyze` | Camera or album. Multimodal AI analyzes the photo for dish info and macros (energy, protein, carbs, fat, …); confirm to log. |
 | `/plan` | Day plan from the saved profile and cited rows, plus training-frequency comparison. |
 | `/chat` | Agent conversation with prompt starters. Not the page after login. |
 | `/more` | Link to profile. |
@@ -78,8 +78,8 @@ The catalog is `GET /api/meta`. Calls are capped at 8 tools and 8 loops.
 
 - `save_profile` — copies only fields the user typed or submitted. Missing fields stay empty.
 - `estimate_needs` — Mifflin–St Jeor times FAO/WHO/UNU PAL 1.50 / 1.75 / 2.10. Cut is TDEE minus 500 kcal. Bulk is TDEE plus 400 kcal. Maintain is TDEE. A target below BMR is rejected.
-- `recognize_dish` — photo to a dish label only. No calories.
-- `lookup_meal` — name and grams must be in the user text or a confirmed proposal. Energy, protein, carbohydrate, fat, and sodium come from a cited row. Missing sodium stays null.
+- `recognize_dish` — photo to multimodal AI (Grok vision). Returns dish info plus estimated energy, protein, carbohydrate, fat, and related fields. Needs `XAI_API_KEY`.
+- `lookup_meal` — after vision analysis, confirms and logs the AI estimate (scaled to grams). Typed dish names still use cited table rows when there is no vision pending.
 - `suggest_meal` — a cited day plan (or one next meal when the remaining budget is small), inside the remaining budget, with avoid tags applied. Grams, energy, and macros come from the table rows.
 - `check_constraints` — protein, energy shares, sodium, and fruit/vegetable checks from the cited public rules.
 - `training_guidance` — WHO 150 minutes and the 2-day muscle-strengthening reference, compared with the saved days. No sets or reps.
@@ -97,5 +97,5 @@ Writes `eval-output/results.json` and `results.csv`. Name accuracy is alias reso
 1. Open the HTTPS LAN URL, or a Cloudflare tunnel aimed at `http://127.0.0.1:8787`, and accept a certificate warning if you use the self-signed port.
 2. Register with email, password, height, weight, age, sex, activity, target weight, goal, training days, and the disclaimer checkbox. The app lands on `/home`.
 3. On a phone the bottom bar is 今日, 分析, 計劃, 聊天, 更多. On a wide window the same destinations are in the sidebar, and Home is three columns.
-4. On 分析, use 拍照, 相簿, or 開鏡頭. Confirm the name and grams. The calorie line appears only after lookup.
+4. On 分析, use 拍照, 相簿, or 開鏡頭. The multimodal AI returns nutrition estimates from the photo; confirm the name/grams to log them.
 5. 計劃 builds a cited day plan. 聊天 is its own page. 更多 opens 我的檔案.

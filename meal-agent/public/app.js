@@ -21,6 +21,7 @@ let image = null;
 let stream = null;
 let chatLog = [];
 let meta = null;
+let visionDraft = null;
 
 function t(key) {
   const value = MEAL_I18N[lang][key];
@@ -225,45 +226,323 @@ function renderMeals() {
 }
 
 function renderAnalyze() {
-  view.innerHTML = `<div class="analyze-layout"><section class="card"><h2>${t("pageAnalyze")}</h2><p>${t("analyzeLead")}</p><div id="preview" class="preview"></div><div id="camera-panel" hidden><video id="video" playsinline autoplay muted></video><button id="shutter" class="secondary" type="button">${t("shutter")}</button></div><div class="actions analyze-actions"><label class="file">${t("camera")}<input id="camera-file" type="file" accept="image/*" capture="environment"></label><label class="file">${t("album")}<input id="album-file" type="file" accept="image/*"></label><button id="live" class="secondary" type="button">${t("live")}</button></div></section><section class="card"><div id="confirm"></div><div id="result"></div><h2>${t("homeTrace")}</h2><div id="trace"></div></section></div>`;
+  visionDraft = null;
+  view.innerHTML = `<div class="analyze-layout"><section class="analyze-panel"><div class="analyze-hero card"><div id="preview" class="preview photo-stage"></div><div id="camera-panel" hidden><video id="video" playsinline autoplay muted></video><button id="shutter" class="secondary" type="button">${t("shutter")}</button></div><div class="actions analyze-actions"><label class="file">${t("camera")}<input id="camera-file" type="file" accept="image/*" capture="environment"></label><label class="file">${t("album")}<input id="album-file" type="file" accept="image/*"></label><button id="live" class="secondary" type="button">${t("live")}</button><button id="manual-meal" class="secondary" type="button">${t("addIngredient")}</button></div></div><div id="confirm"></div><div id="result"></div></section><section class="card"><h2>${t("homeTrace")}</h2><div id="trace"></div></section></div>`;
   document.querySelector("#camera-file").addEventListener("change", (event) => useFile(event.target.files[0]));
   document.querySelector("#album-file").addEventListener("change", (event) => useFile(event.target.files[0]));
   document.querySelector("#live").addEventListener("click", openCamera);
   document.querySelector("#shutter").addEventListener("click", snap);
+  document.querySelector("#manual-meal").addEventListener("click", () => openManualVisionDraft());
 }
 
+function roundShow(value) {
+  if (value == null || Number.isNaN(Number(value))) return "—";
+  return String(Math.round(Number(value) * 10) / 10);
+}
+function slotLabel(slot) {
+  return t({ breakfast: "slotBreakfast", lunch: "slotLunch", dinner: "slotDinner", snack: "slotSnack" }[slot] || "slotLunch");
+}
+const MICRO_FIELDS = [
+  ["sodiumMg", "sodium", "mg"],
+  ["calciumMg", "calcium", "mg"],
+  ["ironMg", "iron", "mg"],
+  ["potassiumMg", "potassium", "mg"],
+  ["magnesiumMg", "magnesium", "mg"],
+  ["zincMg", "zinc", "mg"],
+  ["phosphorusMg", "phosphorus", "mg"],
+  ["vitaminAUcg", "vitaminA", "µg"],
+  ["vitaminCMg", "vitaminC", "mg"],
+  ["vitaminDUcg", "vitaminD", "µg"],
+  ["vitaminB12Ucg", "vitaminB12", "µg"],
+  ["folateUcg", "folate", "µg"],
+  ["fiberG", "fiber", "g"],
+];
+function emptyMicros() {
+  return Object.fromEntries(MICRO_FIELDS.map(([key]) => [key, null]));
+}
+function blankItem() {
+  return {
+    name: "",
+    nameEn: "",
+    grams: 100,
+    nutrients: { energyKcal: 0, proteinG: 0, carbohydrateG: 0, fatG: 0, sodiumMg: null },
+    removed: false,
+  };
+}
+function readVisionForm() {
+  if (!visionDraft) return;
+  const dish = document.querySelector("#dish");
+  if (dish) {
+    visionDraft.nameEn = dish.value.trim();
+    visionDraft.name = dish.value.trim();
+  }
+  for (const row of document.querySelectorAll("[data-item-index]")) {
+    const index = Number(row.getAttribute("data-item-index"));
+    const item = visionDraft.items[index];
+    if (!item || item.removed) continue;
+    const val = (key) => row.querySelector(`[data-field="${key}"]`)?.value;
+    item.nameEn = String(val("name") || "").trim();
+    item.name = item.nameEn;
+    item.grams = Number(val("grams")) || 0;
+    item.nutrients = {
+      energyKcal: Number(val("kcal")) || 0,
+      proteinG: Number(val("protein")) || 0,
+      carbohydrateG: Number(val("carb")) || 0,
+      fatG: Number(val("fat")) || 0,
+      sodiumMg: item.nutrients?.sodiumMg ?? null,
+    };
+  }
+  if (!visionDraft.micros) visionDraft.micros = emptyMicros();
+  for (const [key] of MICRO_FIELDS) {
+    const input = document.querySelector(`[data-micro="${key}"]`);
+    if (!input) continue;
+    const n = Number(input.value);
+    visionDraft.micros[key] = Number.isFinite(n) ? n : null;
+  }
+}
+function visionTotals() {
+  if (!visionDraft) return null;
+  const factor = Number(visionDraft.servings) || 1;
+  const items = (visionDraft.items || []).filter((item) => !item.removed);
+  const sum = (key) => items.reduce((total, item) => total + (Number(item.nutrients?.[key]) || 0), 0);
+  const grams = items.reduce((total, item) => total + (Number(item.grams) || 0), 0);
+  const micros = emptyMicros();
+  for (const [key] of MICRO_FIELDS) {
+    const raw = visionDraft.micros?.[key];
+    micros[key] = raw == null || raw === "" ? null : roundShow(Number(raw) * factor);
+  }
+  return {
+    energyKcal: roundShow(sum("energyKcal") * factor),
+    proteinG: roundShow(sum("proteinG") * factor),
+    carbohydrateG: roundShow(sum("carbohydrateG") * factor),
+    fatG: roundShow(sum("fatG") * factor),
+    grams: roundShow((grams || Number(visionDraft.estimatedGrams) || 100) * factor),
+    items,
+    micros,
+  };
+}
+function renderPhotoTags() {
+  const stage = document.querySelector(".photo-stage");
+  if (!stage || !visionDraft) return;
+  const img = stage.querySelector("img");
+  const totals = visionTotals();
+  const tags = (totals?.items || []).filter((item) => (item.nameEn || item.name)).slice(0, 4).map((item, index) => {
+    const label = item.nameEn || item.name;
+    const kcal = roundShow((Number(item.nutrients?.energyKcal) || 0) * (Number(visionDraft.servings) || 1));
+    return `<span class="food-tag food-tag-${index % 4}">${escapeHtml(label)} ${kcal} kcal</span>`;
+  }).join("");
+  let overlay = stage.querySelector(".photo-overlays");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.className = "photo-overlays";
+    stage.appendChild(overlay);
+  }
+  overlay.innerHTML = tags;
+  if (img) img.classList.add("hero-photo");
+}
+function renderVisionSheet() {
+  const host = document.querySelector("#confirm");
+  if (!host || !visionDraft) return;
+  const totals = visionTotals();
+  const name = visionDraft.nameEn || visionDraft.name;
+  const factor = Number(visionDraft.servings) || 1;
+  const itemCards = (visionDraft.items || []).map((item, index) => {
+    if (item.removed) return "";
+    const n = item.nutrients || {};
+    return `<article class="food-chip food-chip-edit" data-item-index="${index}">
+      <button type="button" class="chip-x" data-remove="${index}" aria-label="remove">×</button>
+      <label>${t("dish")}<input data-field="name" value="${escapeAttr(item.nameEn || item.name || "")}"></label>
+      <div class="chip-fields">
+        <label>${t("grams")}<input data-field="grams" inputmode="decimal" value="${escapeAttr(item.grams ?? "")}"></label>
+        <label>kcal<input data-field="kcal" inputmode="decimal" value="${escapeAttr(n.energyKcal ?? "")}"></label>
+        <label>${t("protein")}<input data-field="protein" inputmode="decimal" value="${escapeAttr(n.proteinG ?? "")}"></label>
+        <label>${t("carb")}<input data-field="carb" inputmode="decimal" value="${escapeAttr(n.carbohydrateG ?? "")}"></label>
+        <label>${t("fat")}<input data-field="fat" inputmode="decimal" value="${escapeAttr(n.fatG ?? "")}"></label>
+      </div>
+      <p class="meta">${roundShow((Number(n.energyKcal) || 0) * factor)} kcal × ${factor}</p>
+    </article>`;
+  }).join("");
+  const microCards = MICRO_FIELDS.map(([key, labelKey, unit]) => {
+    const label = `${t(labelKey)} (${unit})`;
+    return `<label class="food-chip micro">${escapeHtml(label)}<input data-micro="${key}" inputmode="decimal" value="${escapeAttr(visionDraft.micros?.[key] ?? "")}"></label>`;
+  }).join("");
+  host.innerHTML = `<section class="vision-sheet">
+    <div class="sheet-ribbon">${escapeHtml(slotLabel(visionDraft.slot))}</div>
+    <div class="sheet-title-row"><input id="dish" class="sheet-title" value="${escapeAttr(name)}"></div>
+    <div class="sheet-kcal-row"><div><strong class="sheet-kcal" id="sheet-kcal">${totals.energyKcal}</strong><span>kcal</span></div>
+      <div class="serving-stepper"><button type="button" id="serve-minus" class="secondary">−</button><span id="serve-count">${visionDraft.servings}</span><button type="button" id="serve-plus" class="secondary">+</button></div>
+    </div>
+    <div class="macro-pill"><span>${t("carb")}<b id="macro-carb">${totals.carbohydrateG}g</b></span><span>${t("protein")}<b id="macro-protein">${totals.proteinG}g</b></span><span>${t("fat")}<b id="macro-fat">${totals.fatG}g</b></span></div>
+    <div class="sheet-section-head"><h3>${t("ingredientsKcal")}</h3><button type="button" id="add-item" class="secondary">${t("addIngredient")}</button></div>
+    <div class="chip-grid chip-grid-edit">${itemCards || `<p class="meta">${t("noIngredients")}</p>`}</div>
+    <h3>${t("microsMg")}</h3>
+    <div class="chip-grid chip-grid-micros">${microCards}</div>
+    <p class="meta">${t("source")} ${escapeHtml(visionDraft.sourceId || "manual")} · ${totals.grams} ${t("grams")}</p>
+    <button id="confirm-dish" type="button">${t("confirmLookup")}</button>
+  </section>`;
+  renderPhotoTags();
+  bindVisionSheet();
+}
+function refreshVisionTotalsOnly() {
+  readVisionForm();
+  const totals = visionTotals();
+  if (!totals) return;
+  const kcal = document.querySelector("#sheet-kcal");
+  const carb = document.querySelector("#macro-carb");
+  const protein = document.querySelector("#macro-protein");
+  const fat = document.querySelector("#macro-fat");
+  if (kcal) kcal.textContent = totals.energyKcal;
+  if (carb) carb.textContent = `${totals.carbohydrateG}g`;
+  if (protein) protein.textContent = `${totals.proteinG}g`;
+  if (fat) fat.textContent = `${totals.fatG}g`;
+  renderPhotoTags();
+}
+function bindVisionSheet() {
+  document.querySelector("#serve-minus")?.addEventListener("click", () => {
+    readVisionForm();
+    visionDraft.servings = Math.max(1, (Number(visionDraft.servings) || 1) - 1);
+    renderVisionSheet();
+  });
+  document.querySelector("#serve-plus")?.addEventListener("click", () => {
+    readVisionForm();
+    visionDraft.servings = Math.min(8, (Number(visionDraft.servings) || 1) + 1);
+    renderVisionSheet();
+  });
+  document.querySelector("#add-item")?.addEventListener("click", () => {
+    readVisionForm();
+    visionDraft.items.push(blankItem());
+    renderVisionSheet();
+  });
+  for (const button of document.querySelectorAll("[data-remove]")) {
+    button.addEventListener("click", () => {
+      readVisionForm();
+      const index = Number(button.getAttribute("data-remove"));
+      if (visionDraft.items[index]) visionDraft.items[index].removed = true;
+      renderVisionSheet();
+    });
+  }
+  for (const input of document.querySelectorAll(".vision-sheet input")) {
+    input.addEventListener("input", refreshVisionTotalsOnly);
+  }
+  document.querySelector("#confirm-dish")?.addEventListener("click", confirmVisionDraft);
+}
+function buildVisionOverride() {
+  readVisionForm();
+  const totals = visionTotals();
+  const factor = Number(visionDraft.servings) || 1;
+  const items = (visionDraft.items || []).filter((item) => !item.removed && (item.nameEn || item.name)).map((item) => ({
+    name: item.name || item.nameEn,
+    nameEn: item.nameEn || item.name,
+    grams: roundShow((Number(item.grams) || 0) * factor),
+    nutrients: {
+      energyKcal: roundShow((Number(item.nutrients?.energyKcal) || 0) * factor),
+      proteinG: roundShow((Number(item.nutrients?.proteinG) || 0) * factor),
+      carbohydrateG: roundShow((Number(item.nutrients?.carbohydrateG) || 0) * factor),
+      fatG: roundShow((Number(item.nutrients?.fatG) || 0) * factor),
+      sodiumMg: item.nutrients?.sodiumMg == null ? null : roundShow(Number(item.nutrients.sodiumMg) * factor),
+    },
+  }));
+  return {
+    name: visionDraft.nameEn || visionDraft.name || "Meal",
+    nameEn: visionDraft.nameEn || visionDraft.name || "Meal",
+    grams: totals.grams,
+    nutrients: {
+      energyKcal: totals.energyKcal,
+      proteinG: totals.proteinG,
+      carbohydrateG: totals.carbohydrateG,
+      fatG: totals.fatG,
+      sodiumMg: totals.micros.sodiumMg,
+    },
+    micros: { ...totals.micros },
+    items,
+  };
+}
+async function confirmVisionDraft() {
+  if (!visionDraft) return;
+  const override = buildVisionOverride();
+  const data = await ask({
+    message: `confirm ${override.name} ${override.grams} g`,
+    brain: "deterministic",
+    visionOverride: override,
+  });
+  if (data.user) me = data.user;
+  renderTrace(data);
+  const meal = (data.memory?.meals || []).at(-1);
+  const host = document.querySelector("#result");
+  if (!meal || meal.status !== "resolved") { host.textContent = t("noRow"); return; }
+  host.innerHTML = `<p class="logged-note">${t("loggedMeal")}</p><div class="macro-pill"><span>${t("carb")}<b>${meal.nutrients?.carbohydrateG ?? "—"}g</b></span><span>${t("protein")}<b>${meal.nutrients?.proteinG ?? "—"}g</b></span><span>${t("fat")}<b>${meal.nutrients?.fatG ?? "—"}g</b></span></div><p><strong>${escapeHtml(meal.name)}</strong> ${meal.grams} ${t("grams")} · ${meal.nutrients?.energyKcal} kcal · ${t("source")} ${escapeHtml(meal.sourceId || "")}</p>`;
+}
+function openManualVisionDraft(message = "") {
+  visionDraft = {
+    name: "Manual meal",
+    nameEn: "Manual meal",
+    estimatedGrams: 100,
+    nutrients: { energyKcal: 0, proteinG: 0, carbohydrateG: 0, fatG: 0, sodiumMg: null },
+    micros: emptyMicros(),
+    items: [blankItem()],
+    slot: "lunch",
+    sourceId: "ai:vision:manual",
+    servings: 1,
+  };
+  renderVisionSheet();
+  if (message) {
+    const note = document.createElement("p");
+    note.className = "error";
+    note.textContent = message;
+    document.querySelector("#confirm")?.prepend(note);
+  }
+}
 async function useFile(file) {
   if (!file) return;
   image = await resize(file);
+  visionDraft = null;
   document.querySelector("#preview").innerHTML = `<img alt="" src="data:image/jpeg;base64,${image.base64}">`;
-  const data = await ask({ message: lang === "en" ? "Name the dish only" : "請只辨識菜名", image, brain: "deterministic" });
+  document.querySelector("#confirm").innerHTML = `<p class="analyzing">${t("analyzing")}</p>`;
+  document.querySelector("#result").innerHTML = "";
+  const data = await ask({
+    message: "Analyze the food in this photo with multimodal AI. Return English meal name, ingredient items, energy, protein, carbohydrate, fat, and micronutrients.",
+    image,
+    brain: "deterministic",
+  });
   if (data.user) me = data.user;
   renderTrace(data);
   const step = (data.trace || []).find((item) => item.action?.tool === "recognize_dish");
   const observation = step?.observation;
   if (!observation?.ok) {
-    document.querySelector("#confirm").innerHTML = `<p>${escapeHtml(lang === "en" ? (observation?.reasonEn || observation?.reason || t("recognizeFail")) : (observation?.reason || t("recognizeFail")))}</p>${confirmFields("", "")}`;
-  } else {
-    const name = observation.proposal?.name || observation.label || "";
-    document.querySelector("#confirm").innerHTML = `<p>${t("modelName")}：${escapeHtml(observation.label)}. ${t("confirmBefore")}</p>${confirmFields(name, "")}`;
+    const reason = lang === "en" ? (observation?.reasonEn || observation?.reason || t("recognizeFail")) : (observation?.reason || t("recognizeFail"));
+    openManualVisionDraft(reason);
+    return;
   }
-  bindConfirm();
-}
-function confirmFields(name, grams) {
-  return `<div class="grid">${field(t("dish"), `<input id="dish" value="${escapeAttr(name)}">`)}${field(t("grams"), `<input id="grams" inputmode="decimal" value="${escapeAttr(grams)}">`)}</div><button id="confirm-dish" type="button">${t("confirmLookup")}</button>`;
-}
-function bindConfirm() {
-  document.querySelector("#confirm-dish").addEventListener("click", async () => {
-    const name = document.querySelector("#dish").value.trim();
-    const grams = document.querySelector("#grams").value.trim();
-    const data = await ask({ message: `${lang === "en" ? "confirm" : "確認"} ${name} ${grams}${lang === "en" ? " g" : "克"}`, brain: "deterministic" });
-    if (data.user) me = data.user;
-    renderTrace(data);
-    const meal = (data.memory?.meals || []).at(-1);
-    if (!meal || meal.status !== "resolved") { document.querySelector("#result").textContent = t("noRow"); return; }
-    const row = meal.nutrients;
-    document.querySelector("#result").innerHTML = `<p>${escapeHtml(meal.name)} ${meal.grams} ${t("grams")}：${row.energyKcal} kcal，${t("protein")} ${row.proteinG} g，${t("carb")} ${row.carbohydrateG} g，${t("fat")} ${row.fatG} g，${t("sodium")} ${row.sodiumMg ?? t("sodiumMissing")}。${t("source")} ${escapeHtml(meal.sourceId)}。</p>`;
-  });
+  visionDraft = {
+    name: observation.name || observation.nameEn || t("pageAnalyze"),
+    nameEn: observation.nameEn || observation.name || "",
+    estimatedGrams: observation.estimatedGrams ?? observation.grams ?? 100,
+    nutrients: { ...observation.nutrients },
+    micros: { ...emptyMicros(), ...(observation.micros || {}) },
+    items: (observation.items || []).map((item) => ({ ...item, nutrients: { ...item.nutrients }, removed: false })),
+    slot: observation.slot || "lunch",
+    sourceId: observation.sourceId,
+    servings: 1,
+  };
+  if (visionDraft.micros.sodiumMg == null && observation.nutrients?.sodiumMg != null) {
+    visionDraft.micros.sodiumMg = observation.nutrients.sodiumMg;
+  }
+  if (!visionDraft.items.length) {
+    visionDraft.items = [{
+      name: visionDraft.name,
+      nameEn: visionDraft.nameEn,
+      grams: visionDraft.estimatedGrams,
+      nutrients: {
+        energyKcal: observation.nutrients?.energyKcal ?? 0,
+        proteinG: observation.nutrients?.proteinG ?? 0,
+        carbohydrateG: observation.nutrients?.carbohydrateG ?? 0,
+        fatG: observation.nutrients?.fatG ?? 0,
+        sodiumMg: observation.nutrients?.sodiumMg ?? null,
+      },
+      removed: false,
+    }];
+  }
+  renderVisionSheet();
 }
 
 function renderPlan() {
@@ -333,7 +612,10 @@ async function sendChat() {
   image = null;
   document.querySelector("#message").value = "";
   document.querySelector("#preview").innerHTML = "";
-  const data = await ask({ message: text || (lang === "en" ? "Name the dish only" : "請只辨識菜名"), image: sent });
+  const data = await ask({
+    message: text || "Analyze the food in this photo with multimodal AI. Return English labels plus energy, protein, carbohydrate, and fat.",
+    image: sent,
+  });
   if (data.user) me = data.user;
   for (const bubble of data.bubbles || []) addBubble(bubble.agent, bubble.roleName, bubble.text, null, data.trace);
 }

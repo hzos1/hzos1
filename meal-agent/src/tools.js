@@ -4,7 +4,7 @@ import { checkConstraints } from "./health.js";
 import { suggestMeal, verifyPlan, annotatePlan } from "./suggest.js";
 import { trainingGuidance } from "./training.js";
 import { recompute } from "./memory.js";
-import { recognizeDish } from "./recognize.js";
+import { recognizeDish, scaleVisionNutrients } from "./recognize.js";
 
 export async function executeTool(tool, input, ctx) {
   const memory = ctx.memory;
@@ -29,20 +29,79 @@ export async function executeTool(tool, input, ctx) {
     return result;
   }
   if (tool === "recognize_dish") {
-    const result = await recognizeDish(ctx.image);
+    const result = await recognizeDish(ctx.image, { fetchImpl: ctx.fetchImpl, lang: "en" });
     if (result.ok) {
       memory.pending = {
-        name: result.proposal?.name || result.label,
-        foodId: result.proposal?.foodId || null,
-        exact: result.proposal?.exact ?? false,
-        label: result.label,
-        score: result.score,
+        kind: "vision",
+        name: result.name,
+        nameEn: result.nameEn,
+        estimatedGrams: result.estimatedGrams,
+        nutrients: result.nutrients,
+        micros: result.micros || {},
+        items: result.items || [],
+        slot: result.slot || "lunch",
+        notes: result.notes,
+        notesEn: result.notesEn,
+        source: result.source,
+        sourceId: result.sourceId,
+        model: result.model,
+        method: result.method,
       };
     }
     return result;
   }
   if (tool === "lookup_meal") {
     if (!input.confirmed) return { ok: false, error: "confirmation_required", nutrients: null };
+    const pending = memory.pending;
+    if (pending?.kind === "vision" && pending.nutrients) {
+      const grams = input.grams;
+      const nutrients = pending.editedByUser
+        ? {
+          energyKcal: pending.nutrients.energyKcal,
+          proteinG: pending.nutrients.proteinG,
+          carbohydrateG: pending.nutrients.carbohydrateG,
+          fatG: pending.nutrients.fatG,
+          sodiumMg: pending.nutrients.sodiumMg ?? null,
+        }
+        : (scaleVisionNutrients(pending, grams) || pending.nutrients);
+      memory.meals.push({
+        name: input.name || pending.name,
+        query: input.name || pending.name,
+        grams,
+        status: "resolved",
+        foodId: null,
+        source: pending.source || "xai-vision",
+        sourceId: pending.sourceId,
+        group: "vision",
+        produce: false,
+        starchyRoot: false,
+        state: pending.editedByUser ? "user-edited-estimate" : "ai-estimate",
+        nutrients,
+        micros: pending.micros || {},
+        items: pending.items || [],
+        live: false,
+        vision: true,
+        notes: pending.notes,
+      });
+      memory.pending = null;
+      recompute(memory);
+      const missing = [];
+      if (nutrients.sodiumMg == null) missing.push("sodium");
+      if (nutrients.proteinG == null) missing.push("protein");
+      return {
+        ok: true,
+        name: input.name || pending.name,
+        grams,
+        source: pending.source || "xai-vision",
+        sourceId: pending.sourceId,
+        datasetUrl: null,
+        state: pending.editedByUser ? "user-edited-estimate" : "ai-estimate",
+        nutrients,
+        missing,
+        vision: true,
+        method: pending.method || "multimodal-tool-call",
+      };
+    }
     let found = input.foodId ? { status: foodById(input.foodId) ? "found" : "missing", food: foodById(input.foodId) } : lookupFood(input.name);
     let live = false;
     if (found.status !== "found" && process.env.FDC_API_KEY) {

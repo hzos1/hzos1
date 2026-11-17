@@ -1,7 +1,7 @@
 export const LIMITS = { maxToolCalls: 8, maxLoops: 8 };
 
 export const TOOLS = {
-  recognize_dish: { agent: "nutrition", network: false, writes: ["pending"] },
+  recognize_dish: { agent: "nutrition", network: "xai-vision-if-configured", writes: ["pending"] },
   lookup_meal: { agent: "nutrition", network: "usda-only-if-configured", writes: ["meals"] },
   estimate_needs: { agent: "nutrition", network: false, writes: ["needs"] },
   check_constraints: { agent: "nutrition", network: false, writes: ["checks"] },
@@ -11,7 +11,7 @@ export const TOOLS = {
 };
 
 const SCHEMAS = {
-  recognize_dish: { required: [], properties: { note: { type: "string" } }, forbidden: ["energyKcal", "calories"] },
+  recognize_dish: { required: [], properties: { note: { type: "string" } }, forbidden: [] },
   lookup_meal: { required: ["name", "grams"], properties: { name: { type: "string" }, grams: { type: "number" }, foodId: { type: "string" } }, forbidden: ["energyKcal", "calories", "proteinG"] },
   estimate_needs: { required: [], properties: {}, forbidden: ["targetKcal", "bmrKcal"] },
   check_constraints: { required: [], properties: {}, forbidden: [] },
@@ -70,9 +70,10 @@ function groundLookup(input, context) {
   let name = nameFromUser || null;
   let grams = gramsFromUser;
   let foodId = null;
-  if (pending && (context.parsed?.intents.confirm || gramsFromUser || /就係|用/.test(text))) {
+  if (pending && (context.parsed?.intents.confirm || gramsFromUser || /就係|用|確認|confirm/i.test(text))) {
     name = nameFromUser && nameFromUser.length > 1 ? nameFromUser : pending.name;
-    foodId = nameFromUser && nameFromUser.length > 1 ? null : pending.foodId;
+    foodId = pending.kind === "vision" ? null : (nameFromUser && nameFromUser.length > 1 ? null : pending.foodId);
+    if (grams == null && pending.kind === "vision" && pending.estimatedGrams != null) grams = pending.estimatedGrams;
     if (grams == null) return { ok: false, errors: ["grams-not-confirmed"] };
   }
   if (!name) return { ok: false, errors: ["food-name-not-in-user-text"] };
@@ -84,11 +85,9 @@ function groundLookup(input, context) {
 export function validateResult(tool, result) {
   if (!result || typeof result !== "object") return { ok: false, errors: ["result-not-object"] };
   if (tool === "recognize_dish") {
-    const clone = { ...result };
-    delete clone.energyKcal;
-    delete clone.calories;
-    delete clone.menu;
-    return { ok: true, result: clone };
+    if (!result.ok) return { ok: true, result };
+    if (result.nutrients?.energyKcal == null || !result.sourceId) return { ok: false, errors: ["vision-missing-nutrients"] };
+    return { ok: true, result };
   }
   if (tool === "lookup_meal" && result.ok) {
     if (result.nutrients?.energyKcal == null || !result.sourceId) return { ok: false, errors: ["lookup-missing-source"] };

@@ -1,10 +1,13 @@
 export function deterministicStep(ctx) {
   const { memory, parsed, image, done } = ctx;
   if (image && !done.recognize_dish) {
-    return { tool: "recognize_dish", agent: "nutrition", thought: "有相片。先讓菜名模型認菜，不計算熱量。", input: {} };
+    return { tool: "recognize_dish", agent: "nutrition", thought: "Photo attached. Call multimodal AI (English) for dish and nutrient estimates; do not use the local name table.", input: {} };
   }
   if (memory.pending && !done.lookup_meal && (parsed.intents.confirm || parsed.grams != null)) {
-    return { tool: "lookup_meal", agent: "nutrition", thought: "使用者確認了菜名或克數，下一步只查營養資料庫。", input: {} };
+    const thought = memory.pending.kind === "vision"
+      ? "User confirmed the vision estimate or grams; log the AI nutrition result."
+      : "User confirmed the dish name or grams; look up the nutrition table next.";
+    return { tool: "lookup_meal", agent: "nutrition", thought, input: {} };
   }
   if (parsed.intents.profile && !done.save_profile) {
     return { tool: "save_profile", agent: "controller", thought: "對話裡有身體或目標資料。缺的欄位保持空白。", input: parsed.profile };

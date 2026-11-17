@@ -13,6 +13,7 @@ import { preloadRecognizer, recognitionStatus } from "./recognize.js";
 import { AuthError, createSession, deleteSession, loginUser, publicUser, registerUser, saveUser, userForToken } from "./auth.js";
 import { validateProfile } from "./needs.js";
 import { loadEnv } from "./env.js";
+import { pickMicros } from "./micros.js";
 
 loadEnv();
 
@@ -167,6 +168,40 @@ async function handle(request, response) {
       memory.meals = Array.isArray(user.meals) ? user.meals : [];
     }
     const brain = payload.brain === "deterministic" || process.env.MEAL_AGENT_DISABLE_LOCAL_LLM === "1" ? deterministicBrain() : autoBrain();
+    if (payload.visionOverride) {
+      const override = payload.visionOverride;
+      const num = (value) => {
+        const n = Number(value);
+        return Number.isFinite(n) ? Math.round(n * 10) / 10 : null;
+      };
+      const base = memory.pending?.kind === "vision" ? memory.pending : {
+        kind: "vision",
+        source: "xai-vision",
+        sourceId: "ai:vision:manual",
+        method: "user-edited",
+        notes: "",
+        slot: "lunch",
+      };
+      const micros = pickMicros(override.micros || {}, num);
+      const sodiumMg = num(override.nutrients?.sodiumMg) ?? micros.sodiumMg;
+      memory.pending = {
+        ...base,
+        kind: "vision",
+        name: String(override.name || base.name || "Meal").slice(0, 120),
+        nameEn: String(override.nameEn || override.name || base.nameEn || "").slice(0, 120),
+        estimatedGrams: num(override.grams) ?? base.estimatedGrams ?? 100,
+        nutrients: {
+          energyKcal: num(override.nutrients?.energyKcal) ?? 0,
+          proteinG: num(override.nutrients?.proteinG) ?? 0,
+          carbohydrateG: num(override.nutrients?.carbohydrateG) ?? 0,
+          fatG: num(override.nutrients?.fatG) ?? 0,
+          sodiumMg,
+        },
+        micros: { ...micros, sodiumMg },
+        items: Array.isArray(override.items) ? override.items : (base.items || []),
+        editedByUser: true,
+      };
+    }
     const result = await runTurn({
       memory,
       message: String(payload.message || ""),

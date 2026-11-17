@@ -7,7 +7,7 @@ import { executeTool } from "./tools.js";
 import { agentName, observationText, askForMissing } from "./reply.js";
 import { grokChoose, localChoose, llmStatus } from "./llm.js";
 
-export const DISCLAIMER = "本系統只供 DSC4070 課程演示和粗略估算，不是醫療診斷、臨床營養治療或專業訓練方案。有慢性病或特殊需要請諮詢醫生、營養師或合格教練。系統不會代下單，也不會開治療餐單。";
+export const DISCLAIMER = "This is a demo and a rough estimate. It is not a medical diagnosis, clinical nutrition therapy, or a professional training plan. Ask a doctor, dietitian, or qualified coach about illness or special needs. It will not place orders or write a treatment menu.";
 
 export function deterministicBrain() {
   return {
@@ -80,7 +80,7 @@ export async function runTurn({ memory, message = "", image = null, location = n
     loops += 1;
     let choice;
     if (image && !done.recognize_dish) {
-      choice = { tool: "recognize_dish", agent: "nutrition", source: "harness", thought: "Harness：相片只能先呼叫認菜工具，模型不可以直接報卡路里。" };
+      choice = { tool: "recognize_dish", agent: "nutrition", source: "harness", thought: "Harness: with a photo, call the multimodal vision tool first so the AI returns dish and nutrient estimates (English)." };
     } else {
       choice = await activeBrain.choose(ctx);
     }

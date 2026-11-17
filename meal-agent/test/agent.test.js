@@ -88,9 +88,21 @@ test("chat turn logs rice, calls tools, and ignores a fabricated calorie", async
   assert.equal(result.memory.goalStatus.mealsRecorded, true);
 });
 
+test("vision analysis keeps AI nutrients when sourceId is present", () => {
+  const recognized = validateResult("recognize_dish", {
+    ok: true,
+    name: "pizza",
+    estimatedGrams: 200,
+    sourceId: "ai:vision:test",
+    nutrients: { energyKcal: 500, proteinG: 20, carbohydrateG: 60, fatG: 18, sodiumMg: 800 },
+  });
+  assert.equal(recognized.ok, true);
+  assert.equal(recognized.result.nutrients.energyKcal, 500);
+  const rejected = validateResult("recognize_dish", { ok: true, name: "pizza", nutrients: { energyKcal: 1 } });
+  assert.equal(rejected.ok, false);
+});
+
 test("unconfirmed lookup and prompt injection do not create calories", async () => {
-  const recognized = validateResult("recognize_dish", { ok: true, label: "pizza", score: 0.4, energyKcal: 9999 });
-  assert.equal(recognized.result.energyKcal, undefined);
   const memory = createMemory();
   memory.meals.push({ name: "白飯", grams: 100, status: "resolved", nutrients: nutrientsOfRice(), sourceId: "A0550601", produce: false, group: "grain", starchyRoot: false });
   const before = 183;
@@ -103,6 +115,60 @@ test("unconfirmed lookup and prompt injection do not create calories", async () 
   assert.equal(result.memory.meals.length, 1);
   assert.equal(result.trace.some((step) => step.action?.tool === "find_places"), false);
   assert.equal(JSON.stringify(result.bubbles).includes("9999"), false);
+});
+
+test("photo path calls multimodal AI and logs the vision estimate", async () => {
+  const previous = process.env.XAI_API_KEY;
+  process.env.XAI_API_KEY = "test-vision-key";
+  let requestedUrl = "";
+  const fetchImpl = async (url) => {
+    requestedUrl = String(url);
+    return {
+      ok: true,
+      json: async () => ({
+        output: [{
+          type: "message",
+          role: "assistant",
+          content: [{
+            type: "output_text",
+            text: JSON.stringify({
+              name: "芝士薄餅",
+              nameEn: "cheese pizza",
+              estimatedGrams: 200,
+              energyKcal: 520,
+              proteinG: 22,
+              carbohydrateG: 58,
+              fatG: 22,
+              sodiumMg: 900,
+              confidence: 0.7,
+              notes: "一片薄餅的課堂估算",
+            }),
+          }],
+        }],
+      }),
+    };
+  };
+  const analyzed = await runTurn({
+    memory: createMemory(),
+    message: "請分析相片食物營養",
+    image: { base64: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", mime: "image/jpeg" },
+    brain: deterministicBrain(),
+    fetchImpl,
+  });
+  assert.match(requestedUrl, /\/v1\/responses$/);
+  assert.equal(analyzed.trace.some((step) => step.action.tool === "recognize_dish"), true);
+  assert.equal(analyzed.memory.pending.kind, "vision");
+  assert.equal(analyzed.memory.pending.nutrients.energyKcal, 520);
+  const logged = await runTurn({
+    memory: analyzed.memory,
+    message: "確認 芝士薄餅 200克",
+    brain: deterministicBrain(),
+    fetchImpl,
+  });
+  assert.equal(logged.memory.meals[0].nutrients.energyKcal, 520);
+  assert.match(logged.memory.meals[0].sourceId, /^ai:vision:/);
+  if (previous == null) delete process.env.XAI_API_KEY;
+  else process.env.XAI_API_KEY = previous;
 });
 
 function nutrientsOfRice() {

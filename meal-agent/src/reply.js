@@ -27,25 +27,25 @@ export function observationText(tool, result, lang = "zh") {
   const en = lang === "en";
   if (tool === "recognize_dish") {
     if (!result.ok) {
-      const reason = en ? (result.reasonEn || result.reason || "The model returned no dish name") : (result.reason || "模型沒有返回菜名");
-      return en ? `Recognition failed: ${reason}. Type the dish name and grams.` : `認菜失敗：${reason}。請在對話打菜名和克數。`;
+      const reason = en ? (result.reasonEn || result.reason || "The multimodal model returned no analysis") : (result.reason || "多模態模型沒有返回分析");
+      return en ? `Photo analysis failed: ${reason}` : `相片分析失敗：${reason}`;
     }
-    const proposal = result.proposal
-      ? (result.proposal.exact
-        ? (en ? `The table row is “${result.proposal.name}” (${result.proposal.sourceId}). Confirm the grams. No calories yet.` : `資料列名稱是「${result.proposal.name}」（${result.proposal.sourceId}）。請確認克數，我先不計熱量。`)
-        : (en ? `The label “${result.label}” is not the row “${result.proposal.name}” itself. Confirm that row and the grams if you want to use it.` : `類別「${result.label}」不是資料列「${result.proposal.name}」本身。若要用這列，請回覆確認和克數。`))
-      : (en ? "The local table has no matching row. Type a name that is in the table, plus grams." : "本地表沒有對應列。請打一個表上有的菜名和克數。");
+    const conf = result.confidence != null ? (en ? ` Confidence ${Math.round(result.confidence * 100)}%.` : ` 信心 ${Math.round(result.confidence * 100)}%。`) : "";
+    const notes = en ? (result.notesEn || result.notes || "") : (result.notes || "");
     return en
-      ? `Dish name only: ${result.label} (confidence ${Math.round(result.score * 100)}%). ${proposal}`
-      : `只認到菜名：${result.label}（信心 ${Math.round(result.score * 100)}%）。${proposal}`;
+      ? `Vision AI estimate for “${result.nameEn || result.name}” (~${result.estimatedGrams} g): ${nutrientLine(result.nutrients, [], lang)}. Source ${result.sourceId}.${conf} ${notes} Confirm the name/grams to log it.`
+      : `多模態 AI 估算「${result.name}」（約 ${result.estimatedGrams} 克）：${nutrientLine(result.nutrients, [], lang)}。來源 ${result.sourceId}。${conf}${notes ? ` ${notes}` : ""} 請確認菜名／克數後記錄。`;
   }
   if (tool === "lookup_meal") {
     if (!result.ok) return result.status === "ambiguous"
       ? (en ? `“${result.name}” matches more than one row, so there is no calorie number.` : `「${result.name}」對到多於一列，我不選熱量。`)
       : (en ? `The database has no nutrient row for “${result.name}”, so there is no calorie number.` : `資料庫沒有「${result.name}」的營養列，所以沒有卡路里數字。`);
+    const via = result.vision
+      ? (en ? "Vision AI estimate" : "多模態 AI 估算")
+      : (en ? `Source ${result.source}` : `來源 ${result.source}`);
     return en
-      ? `${result.name}, ${result.grams} g: ${nutrientLine(result.nutrients, result.missing, lang)}. Source ${result.source} ${result.sourceId}.`
-      : `${result.name} ${result.grams} 克：${nutrientLine(result.nutrients, result.missing, lang)}。來源 ${result.source} ${result.sourceId}。`;
+      ? `${result.name}, ${result.grams} g: ${nutrientLine(result.nutrients, result.missing, lang)}. ${via} ${result.sourceId}.`
+      : `${result.name} ${result.grams} 克：${nutrientLine(result.nutrients, result.missing, lang)}。${via} ${result.sourceId}。`;
   }
   if (tool === "estimate_needs") {
     if (!result.ok) return en
@@ -97,6 +97,11 @@ export function observationText(tool, result, lang = "zh") {
 
 export function askForMissing(memory, parsed, lang = "zh") {
   const en = lang === "en";
+  if (memory.pending?.kind === "vision") {
+    return en
+      ? "Confirm or edit the dish name and grams, then I will log the vision AI nutrition estimate."
+      : "請確認或修改菜名和克數，我會把多模態 AI 的營養估算寫進今日餐點。";
+  }
   if (memory.pending && parsed.grams == null) return en ? "Confirm the dish name and tell me the grams. I will not look up calories before that." : "請確認菜名，並告訴我克數。確認之前我不查熱量。";
   if ((parsed.intents.calories || parsed.intents.plan || parsed.profile.goal) && !memory.needs) {
     return en
