@@ -1,0 +1,17 @@
+{
+  "note": "Food-101 class to a cited row. exact:false means the class is not the same dish as the row. The user must confirm before any calorie lookup. This file contains no nutrient values.",
+  "map": {
+    "fried_rice": { "foodId": "usda:167668", "exact": false },
+    "grilled_salmon": { "foodId": "usda:175168", "exact": false },
+    "pizza": { "foodId": "usda:170317", "exact": false },
+    "french_fries": { "foodId": "usda:170698", "exact": false },
+    "pancakes": { "foodId": "usda:175006", "exact": false },
+    "waffles": { "foodId": "usda:175039", "exact": false },
+    "edamame": { "foodId": "usda:168411", "exact": true },
+    "hummus": { "foodId": "usda:174289", "exact": true },
+    "steak": { "foodId": "usda:168634", "exact": false },
+    "pork_chop": { "foodId": "usda:167882", "exact": false },
+    "gyoza": { "foodId": "tw:R2201501", "exact": false },
+    "dumplings": { "foodId": "tw:R2201501", "exact": false }
+  }
+}

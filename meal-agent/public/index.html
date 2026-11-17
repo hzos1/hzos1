@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>餐點 agent</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="top">
+    <p class="disclaimer">本系統只供 DSC4070 課程演示和粗略估算，不是醫療診斷、臨床營養治療或專業訓練方案。有慢性病或特殊需要請諮詢醫生、營養師或合格教練。不會代下單，也不會開治療餐單。</p>
+    <div class="title-row">
+      <h1 id="title">餐點 agent</h1>
+    </div>
+    <p id="model-line" class="meta"></p>
+  </header>
+  <main id="view"></main>
+  <nav id="tabbar" hidden>
+    <a href="/home" data-path="/home">今日</a>
+    <a href="/analyze" data-path="/analyze">分析</a>
+    <a href="/plan" data-path="/plan">計劃</a>
+    <a href="/places" data-path="/places">餐廳</a>
+    <a href="/more" data-path="/more">更多</a>
+  </nav>
+  <script src="/app.js"></script>
+</body>
+</html>
