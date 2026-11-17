@@ -37,20 +37,20 @@ export function parseMessage(text) {
   let foodQuery = raw
     .replace(/(?:我食咗|食咗|吃了|今日食|呢餐係|這餐是)/g, " ")
     .replace(/\d+(?:\.\d+)?\s*(?:kg|公斤|cm|厘米|公分|歲|g|克)/gi, " ")
-    .replace(/(?:減到|目標體重|目標|體重|而家|現在|男|女|少動|中度|高活動|減脂|增肌|維持|確認|係|是|用)/g, " ")
+    .replace(/(?:減到|目標體重|目標|體重|而家|現在|男|女|少動|中度|高活動|減脂|增肌|維持|確認|confirm|係|是|用)/gi, " ")
     .replace(/[，,。．！？?]/g, " ")
     .trim();
   if (/幾多卡|幾多熱量|多少卡|多少熱量/.test(raw)) foodQuery = foodQuery.replace(/幾多卡路里|幾多卡|幾多熱量|多少卡路里|多少卡|多少熱量|卡路里/g, "").trim();
 
-  const areaMatch = raw.match(/(?:地區|地址)\s*[:：]?\s*([^\s，。,]{2,40})/);
+  const areaMatch = raw.match(/(?:地區|地址|area)\s*[:：]?\s*([^\s，。,]{2,40})/i);
   const area = areaMatch ? areaMatch[1] : null;
 
   const intents = {
-    training: /練|訓練|運動|gym/i.test(raw),
-    places: /附近|餐廳|邊度食|地圖/.test(raw),
-    plan: /餐單|下一餐|推薦|建議.*餐|晚餐|午餐|早餐/.test(raw),
-    calories: /卡|熱量|kcal/i.test(raw),
-    confirm: /確認|就係|就這|用這個|用呢個/.test(raw),
+    training: /練|訓練|運動|gym|train/i.test(raw),
+    places: /附近|餐廳|邊度食|地圖|nearby|restaurant/i.test(raw),
+    plan: /餐單|下一餐|推薦|建議.*餐|晚餐|午餐|早餐|next meal|suggest/i.test(raw),
+    calories: /卡|熱量|kcal|calorie/i.test(raw),
+    confirm: /確認|就係|就這|用這個|用呢個|\bconfirm\b/i.test(raw),
     profile: Object.keys(profile).length > 0,
   };
   return { raw, profile, grams, foodQuery, area, intents };

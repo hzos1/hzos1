@@ -5,7 +5,7 @@ import { bindCall, validateResult, LIMITS, TOOLS, toolCatalog } from "./harness.
 import { deterministicStep } from "./planning.js";
 import { executeTool } from "./tools.js";
 import { agentName, observationText, askForMissing } from "./reply.js";
-import { geminiChoose, localChoose, llmStatus } from "./llm.js";
+import { grokChoose, localChoose, llmStatus } from "./llm.js";
 
 export const DISCLAIMER = "本系統只供 DSC4070 課程演示和粗略估算，不是醫療診斷、臨床營養治療或專業訓練方案。有慢性病或特殊需要請諮詢醫生、營養師或合格教練。系統不會代下單，也不會開治療餐單。";
 
@@ -22,12 +22,13 @@ export function autoBrain() {
   return {
     id: "auto",
     async choose(ctx) {
-      if (process.env.GEMINI_API_KEY) {
+      if (process.env.XAI_API_KEY) {
         try {
-          const choice = await geminiChoose(ctx);
-          if (choice?.tool || choice?.stop) return { ...choice, source: "gemini" };
-        } catch (error) {
-          ctx.modelError = error.message;
+          const choice = await grokChoose(ctx, ctx.fetchImpl || fetch);
+          if (choice?.tool || choice?.stop) return { ...choice, source: "grok" };
+        } catch {
+          ctx.modelFailed = true;
+          ctx.modelError = "grok-request-failed";
         }
       } else if (!ctx.modelAttempted) {
         ctx.modelAttempted = true;
@@ -60,7 +61,7 @@ export function applySavedProfile(memory, input) {
   return check;
 }
 
-export async function runTurn({ memory, message = "", image = null, location = null, avoid = null, profile = null, brain, fetchImpl = fetch }) {
+export async function runTurn({ memory, message = "", image = null, location = null, avoid = null, profile = null, brain, fetchImpl = fetch, lang = "zh" }) {
   if (!memory) memory = createMemory();
   const parsed = parseMessage(message);
   if (Array.isArray(avoid)) memory.avoid = avoid;
@@ -72,7 +73,8 @@ export async function runTurn({ memory, message = "", image = null, location = n
   let toolsUsed = 0;
   let loops = 0;
   let stopReason = "completed";
-  const ctx = { memory, message, parsed, image, location, fetchImpl, done, modelAttempted: false };
+  const language = lang === "en" ? "en" : "zh";
+  const ctx = { memory, message, parsed, image, location, fetchImpl, done, modelAttempted: false, lang: language };
   const activeBrain = brain || autoBrain();
 
   while (toolsUsed < LIMITS.maxToolCalls && loops < LIMITS.maxLoops) {
@@ -135,7 +137,7 @@ export async function runTurn({ memory, message = "", image = null, location = n
     done[bound.tool] = true;
     trace.push({
       agent: TOOLS[bound.tool].agent,
-      roleName: agentName(TOOLS[bound.tool].agent),
+      roleName: agentName(TOOLS[bound.tool].agent, language),
       thought: choice.thought,
       recovered: Boolean(choice.recovered),
       source: choice.source,
@@ -161,15 +163,17 @@ export async function runTurn({ memory, message = "", image = null, location = n
   recompute(memory);
   const bubbles = [{
     agent: "controller",
-    roleName: agentName("controller"),
-    text: `目標係更新世界狀態，不是寫一段營養師口吻。這一輪規劃來源：${trace.find((step) => step.source && step.source !== "harness")?.source || activeBrain.id}。`,
+    roleName: agentName("controller", language),
+    text: language === "en"
+      ? `The goal is to update world state, not to write a dietitian paragraph. Planner this turn: ${trace.find((step) => step.source && step.source !== "harness")?.source || activeBrain.id}.`
+      : `目標係更新世界狀態，不是寫一段營養師口吻。這一輪規劃來源：${trace.find((step) => step.source && step.source !== "harness")?.source || activeBrain.id}。`,
   }];
   for (const step of trace) {
     if (!step.action?.tool) continue;
-    bubbles.push({ agent: step.agent, roleName: agentName(step.agent), text: observationText(step.action.tool, step.observation) });
+    bubbles.push({ agent: step.agent, roleName: agentName(step.agent, language), text: observationText(step.action.tool, step.observation, language) });
   }
-  const followup = askForMissing(memory, parsed);
-  if (followup) bubbles.push({ agent: "controller", roleName: agentName("controller"), text: followup });
+  const followup = askForMissing(memory, parsed, language);
+  if (followup) bubbles.push({ agent: "controller", roleName: agentName("controller", language), text: followup });
   return {
     bubbles,
     trace,
@@ -179,7 +183,7 @@ export async function runTurn({ memory, message = "", image = null, location = n
     loops,
     safety: [...new Set(safety)],
     disclaimer: DISCLAIMER,
-    planner: trace.some((step) => step.source === "gemini") ? "gemini" : trace.some((step) => step.source === "local-llm") ? "local-llm" : activeBrain.id,
+    planner: trace.some((step) => step.source === "grok") ? "grok" : trace.some((step) => step.source === "local-llm") ? "local-llm" : activeBrain.id,
     limits: LIMITS,
     tools: toolCatalog(),
     llm: llmStatus(),

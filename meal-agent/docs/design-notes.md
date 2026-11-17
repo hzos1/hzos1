@@ -20,7 +20,7 @@
 ## 課程技巧對照
 
 - **迴圈。** 每一輪是目標、規劃、工具、觀察、更新狀態。停止條件寫在軌跡的世界狀態：有沒有餐、剩餘熱量、餐單有沒有通過檢查。成功不是一句飲食建議。
-- **三個組件。** Planning 在 `src/planning.js`。Tools 在 `src/tools.js` 與 `src/harness.js`。Memory 在伺服器 session，身體檔案另存在瀏覽器，每次請求把已提交的檔案交回工具。
+- **三個組件。** Planning 在 `src/planning.js`。Tools 在 `src/tools.js` 與 `src/harness.js`。Memory 在伺服器。身體檔案存在本機使用者檔（`var/`，已 gitignore），密碼只存 scrypt 雜湊。登入用 httpOnly cookie。聊天室在有 `XAI_API_KEY` 時由 Grok 選工具；沒有金鑰就用本地模型，再不行就用確定性規劃。
 - **ReAct。** 各功能頁和聊天室都可展開 thought、action、observation。
 - **工具契約。** `GET /api/meta` 列出 JSON schema、允許的網路和可寫欄位。模型只可選工具；熱量由資料庫工具寫入。
 - **Harness。** 未知工具、不在使用者句子裡的菜名或克數、模型自填的卡路里欄位都會被擋下。上限 8 次工具、8 圈。失敗時改走確定性規劃，軌跡標 `deterministic-recovery`。

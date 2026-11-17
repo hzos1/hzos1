@@ -5,7 +5,7 @@ import { bmr, estimateNeeds } from "../src/needs.js";
 import { suggestMeal } from "../src/suggest.js";
 import { sanitizeUntrusted, findPlaces } from "../src/places.js";
 import { createMemory } from "../src/memory.js";
-import { runTurn, deterministicBrain } from "../src/agent.js";
+import { runTurn, deterministicBrain, autoBrain } from "../src/agent.js";
 import { validateResult } from "../src/harness.js";
 
 test("white rice calories come from the Taiwan row", () => {
@@ -113,6 +113,23 @@ test("saved profile drives the budget and training note without guessing", async
   const text = plan.bubbles.map((bubble) => bubble.text).join("\n");
   assert.match(text, /每週訓練 1 天/);
   assert.equal(plan.memory.plan.passedChecks, true);
+});
+
+test("Grok is the cloud tool chooser and the key stays out of the trace", async () => {
+  const previous = process.env.XAI_API_KEY;
+  process.env.XAI_API_KEY = "test-key-should-not-leak";
+  let requested = "";
+  const fetchImpl = async (url, options) => {
+    requested = `${url} ${options.headers.Authorization}`;
+    return { ok: true, json: async () => ({ choices: [{ message: { tool_calls: [{ function: { name: "lookup_meal", arguments: "{\"energyKcal\":9}" } }] } }] }) };
+  };
+  const choice = await autoBrain().choose({ message: "白飯 200克", memory: createMemory(), fetchImpl, modelAttempted: false, done: {} });
+  assert.equal(choice.source, "grok");
+  assert.equal(choice.tool, "lookup_meal");
+  assert.equal(JSON.stringify(choice).includes("test-key-should-not-leak"), false);
+  assert.match(requested, /^https:\/\/api\.x\.ai\/v1\/chat\/completions Bearer /);
+  if (previous == null) delete process.env.XAI_API_KEY;
+  else process.env.XAI_API_KEY = previous;
 });
 
 test("full chat updates remaining calories and a checked plan", async () => {

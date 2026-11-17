@@ -63,10 +63,16 @@ export function checkConstraints(memory) {
   if (eaten.produceG < PRODUCE_G) advice.push("下一餐加入蔬菜或水果；少油少鹽是防護中心食物金字塔「吃最少油鹽糖」的一般原則。");
   if (flags.find((flag) => flag.id === "sodium" && flag.pass === false)) advice.push("今日鈉已達到或超過 2000 mg 的對照值，下一餐不要再自動選高鈉菜式。");
   if (flags.find((flag) => flag.id === "energy-shares" && flag.pass === false)) advice.push("至今脂肪供能比例高於 30%，下一餐改用較低脂的資料列。");
+  const adviceEn = [];
+  if (flags.find((flag) => flag.id === "protein-grams" && flag.pass === false)) adviceEn.push("Prefer a protein food from the table for the next meal.");
+  if (eaten.produceG < PRODUCE_G) adviceEn.push("Add vegetables or fruit next. Less oil, salt, and sugar is the general pyramid reminder, not a prescription.");
+  if (flags.find((flag) => flag.id === "sodium" && flag.pass === false)) adviceEn.push("Logged sodium is already at the 2000 mg reference, so the next meal should not automatically pick a high-sodium row.");
+  if (flags.find((flag) => flag.id === "energy-shares" && flag.pass === false)) adviceEn.push("Fat is above 30% of energy so far. Use a lower-fat row next.");
   return {
     ok: true,
     flags,
     advice,
+    adviceEn,
     planPassed,
     planErrors,
     citations: flags.map((flag) => flag.citation),

@@ -3,25 +3,51 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>餐點 agent</title>
+  <title>Meal agent</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <header class="top">
-    <p class="disclaimer">本系統只供 DSC4070 課程演示和粗略估算，不是醫療診斷、臨床營養治療或專業訓練方案。有慢性病或特殊需要請諮詢醫生、營養師或合格教練。不會代下單，也不會開治療餐單。</p>
-    <div class="title-row">
-      <h1 id="title">餐點 agent</h1>
+  <div class="shell">
+    <aside id="sidebar" hidden>
+      <a class="brand" href="/home">
+        <strong id="brand-name"></strong>
+        <span id="brand-sub"></span>
+      </a>
+      <nav id="side-nav" class="side-nav">
+        <a href="/home" data-path="/home"></a>
+        <a href="/analyze" data-path="/analyze"></a>
+        <a href="/plan" data-path="/plan"></a>
+        <a href="/places" data-path="/places"></a>
+        <a href="/more" data-path="/more"></a>
+      </nav>
+      <div class="side-foot">
+        <button id="lang-side" class="secondary" type="button">EN</button>
+        <button id="logout-side" class="secondary" type="button"></button>
+      </div>
+    </aside>
+    <div class="column">
+      <header class="top">
+        <p id="disclaimer" class="disclaimer"></p>
+        <div class="title-row">
+          <h1 id="title"></h1>
+          <div class="header-actions">
+            <button id="lang-toggle" class="secondary" type="button">EN</button>
+            <button id="logout" class="secondary" type="button" hidden></button>
+          </div>
+        </div>
+        <p id="model-line" class="meta"></p>
+      </header>
+      <main id="view"></main>
     </div>
-    <p id="model-line" class="meta"></p>
-  </header>
-  <main id="view"></main>
+  </div>
   <nav id="tabbar" hidden>
-    <a href="/home" data-path="/home">今日</a>
-    <a href="/analyze" data-path="/analyze">分析</a>
-    <a href="/plan" data-path="/plan">計劃</a>
-    <a href="/places" data-path="/places">餐廳</a>
-    <a href="/more" data-path="/more">更多</a>
+    <a href="/home" data-path="/home"></a>
+    <a href="/analyze" data-path="/analyze"></a>
+    <a href="/plan" data-path="/plan"></a>
+    <a href="/places" data-path="/places"></a>
+    <a href="/more" data-path="/more"></a>
   </nav>
+  <script src="/i18n.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>

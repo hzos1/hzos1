@@ -1,61 +1,99 @@
-const NAMES = { controller: "控制器", nutrition: "營養 agent", training: "訓練 agent", places: "餐廳 agent" };
+const NAMES = {
+  zh: { controller: "控制器", nutrition: "營養 agent", training: "訓練 agent", places: "餐廳 agent" },
+  en: { controller: "Controller", nutrition: "Nutrition agent", training: "Training agent", places: "Places agent" },
+};
 
-export function agentName(id) {
-  return NAMES[id] || "控制器";
+export function agentName(id, lang = "zh") {
+  const table = NAMES[lang === "en" ? "en" : "zh"];
+  return table[id] || table.controller;
 }
 
-function nutrientLine(nutrients, missing = []) {
-  const sodium = nutrients.sodiumMg == null || missing.includes("sodium") ? "鈉：資料沒有，不估算" : `鈉 ${nutrients.sodiumMg} mg`;
+function nutrientLine(nutrients, missing = [], lang = "zh") {
+  const sodium = nutrients.sodiumMg == null || missing.includes("sodium")
+    ? (lang === "en" ? "sodium: not in the row, not estimated" : "鈉：資料沒有，不估算")
+    : (lang === "en" ? `sodium ${nutrients.sodiumMg} mg` : `鈉 ${nutrients.sodiumMg} mg`);
+  if (lang === "en") {
+    return `${nutrients.energyKcal} kcal, protein ${nutrients.proteinG ?? "missing"} g, carbohydrate ${nutrients.carbohydrateG ?? "missing"} g, fat ${nutrients.fatG ?? "missing"} g, ${sodium}`;
+  }
   return `${nutrients.energyKcal} kcal，蛋白質 ${nutrients.proteinG ?? "缺"} g，碳水 ${nutrients.carbohydrateG ?? "缺"} g，脂肪 ${nutrients.fatG ?? "缺"} g，${sodium}`;
 }
 
-export function observationText(tool, result) {
+function textOf(result, lang, zhKey, enKey) {
+  if (lang === "en" && result?.[enKey]) return result[enKey];
+  return result?.[zhKey] || "";
+}
+
+export function observationText(tool, result, lang = "zh") {
+  const en = lang === "en";
   if (tool === "recognize_dish") {
-    if (!result.ok) return `認菜失敗：${result.reason || "模型沒有返回菜名"}。請在對話打菜名和克數。`;
+    if (!result.ok) {
+      const reason = en ? (result.reasonEn || result.reason || "The model returned no dish name") : (result.reason || "模型沒有返回菜名");
+      return en ? `Recognition failed: ${reason}. Type the dish name and grams.` : `認菜失敗：${reason}。請在對話打菜名和克數。`;
+    }
     const proposal = result.proposal
       ? (result.proposal.exact
-        ? `資料列名稱是「${result.proposal.name}」（${result.proposal.sourceId}）。請確認克數，我先不計熱量。`
-        : `類別「${result.label}」不是資料列「${result.proposal.name}」本身。若要用這列，請回覆確認和克數。`)
-      : "本地表沒有對應列。請打一個表上有的菜名和克數。";
-    return `只認到菜名：${result.label}（信心 ${Math.round(result.score * 100)}%）。${proposal}`;
+        ? (en ? `The table row is “${result.proposal.name}” (${result.proposal.sourceId}). Confirm the grams. No calories yet.` : `資料列名稱是「${result.proposal.name}」（${result.proposal.sourceId}）。請確認克數，我先不計熱量。`)
+        : (en ? `The label “${result.label}” is not the row “${result.proposal.name}” itself. Confirm that row and the grams if you want to use it.` : `類別「${result.label}」不是資料列「${result.proposal.name}」本身。若要用這列，請回覆確認和克數。`))
+      : (en ? "The local table has no matching row. Type a name that is in the table, plus grams." : "本地表沒有對應列。請打一個表上有的菜名和克數。");
+    return en
+      ? `Dish name only: ${result.label} (confidence ${Math.round(result.score * 100)}%). ${proposal}`
+      : `只認到菜名：${result.label}（信心 ${Math.round(result.score * 100)}%）。${proposal}`;
   }
   if (tool === "lookup_meal") {
     if (!result.ok) return result.status === "ambiguous"
-      ? `「${result.name}」對到多於一列，我不選熱量。`
-      : `資料庫沒有「${result.name}」的營養列，所以沒有卡路里數字。`;
-    return `${result.name} ${result.grams} 克：${nutrientLine(result.nutrients, result.missing)}。來源 ${result.source} ${result.sourceId}。`;
+      ? (en ? `“${result.name}” matches more than one row, so there is no calorie number.` : `「${result.name}」對到多於一列，我不選熱量。`)
+      : (en ? `The database has no nutrient row for “${result.name}”, so there is no calorie number.` : `資料庫沒有「${result.name}」的營養列，所以沒有卡路里數字。`);
+    return en
+      ? `${result.name}, ${result.grams} g: ${nutrientLine(result.nutrients, result.missing, lang)}. Source ${result.source} ${result.sourceId}.`
+      : `${result.name} ${result.grams} 克：${nutrientLine(result.nutrients, result.missing, lang)}。來源 ${result.source} ${result.sourceId}。`;
   }
   if (tool === "estimate_needs") {
-    if (!result.ok) return `不能計算預算：${(result.errors || []).join("、") || "資料不足"}。沒有改用一個較低或假設的熱量。`;
-    return `BMR ${result.bmrKcal} kcal，PAL ${result.pal}，TDEE ${result.tdeeKcal} kcal，課堂目標 ${result.targetKcal} kcal（調整 ${result.adjustmentKcal} kcal）。目標體重 ${result.targetWeightKg} kg。`;
+    if (!result.ok) return en
+      ? `Cannot calculate a budget: ${(result.errors || []).join(", ") || "not enough data"}. No lower or assumed calorie target was substituted.`
+      : `不能計算預算：${(result.errors || []).join("、") || "資料不足"}。沒有改用一個較低或假設的熱量。`;
+    return en
+      ? `BMR ${result.bmrKcal} kcal, PAL ${result.pal}, TDEE ${result.tdeeKcal} kcal, classroom target ${result.targetKcal} kcal (adjustment ${result.adjustmentKcal} kcal). Target weight ${result.targetWeightKg} kg.`
+      : `BMR ${result.bmrKcal} kcal，PAL ${result.pal}，TDEE ${result.tdeeKcal} kcal，課堂目標 ${result.targetKcal} kcal（調整 ${result.adjustmentKcal} kcal）。目標體重 ${result.targetWeightKg} kg。`;
   }
-  if (tool === "training_guidance") return `${result.text} ${result.statedNote || ""} ${result.muscleNote}`;
+  if (tool === "training_guidance") return `${textOf(result, lang, "text", "textEn")} ${textOf(result, lang, "statedNote", "statedNoteEn")} ${textOf(result, lang, "muscleNote", "muscleNoteEn")}`.trim();
   if (tool === "suggest_meal") {
-    if (!result.items?.length) return result.reason || "沒有可推薦的菜式。";
-    const lines = result.items.map((item) => `${item.name} ${item.grams} 克，${item.nutrients.energyKcal} kcal，${item.sourceId}，${item.portionLabel}`);
-    return `下一餐建議合計 ${result.totalKcal} kcal，上限 ${result.capKcal} kcal。${lines.join("；")}。這不是餐廳菜單。`;
+    if (!result.items?.length) return textOf(result, lang, "reason", "reasonEn") || (en ? "No dish to suggest." : "沒有可推薦的菜式。");
+    const lines = result.items.map((item) => en
+      ? `${item.name} ${item.grams} g, ${item.nutrients.energyKcal} kcal, ${item.sourceId}, ${item.portionLabel}`
+      : `${item.name} ${item.grams} 克，${item.nutrients.energyKcal} kcal，${item.sourceId}，${item.portionLabel}`);
+    return en
+      ? `Next meal totals ${result.totalKcal} kcal, cap ${result.capKcal} kcal. ${lines.join("; ")}. This is not a restaurant menu.`
+      : `下一餐建議合計 ${result.totalKcal} kcal，上限 ${result.capKcal} kcal。${lines.join("；")}。這不是餐廳菜單。`;
   }
   if (tool === "check_constraints") {
-    const advice = (result.advice || []).join("");
-    const head = result.planPassed ? "餐單通過預算和忌口檢查。" : "餐單尚未通過檢查，不會把它當成完成。";
-    return `${head} ${advice}`.trim();
+    const advice = en ? (result.adviceEn || result.advice || []) : (result.advice || []);
+    const head = result.planPassed
+      ? (en ? "The meal passed the budget and avoid-list checks." : "餐單通過預算和忌口檢查。")
+      : (en ? "The meal has not passed the checks, so it is not treated as done." : "餐單尚未通過檢查，不會把它當成完成。");
+    return `${head} ${advice.join("")}`.trim();
   }
   if (tool === "find_places") {
-    if (!result.ok) return result.reason;
-    const names = result.places.map((place) => `${place.name}${place.cuisine ? `（cuisine: ${place.cuisine}）` : ""} ${place.url}`).join("；");
-    return `${result.reason} ${names}。沒有為這些店填卡路里或菜單。`.trim();
+    if (!result.ok) return textOf(result, lang, "reason", "reasonEn");
+    const names = result.places.map((place) => `${place.name}${place.cuisine ? ` (cuisine: ${place.cuisine})` : ""} ${place.url}`).join(en ? "; " : "；");
+    const tail = en ? "No calories or menus were filled in for these places." : "沒有為這些店填卡路里或菜單。";
+    return `${textOf(result, lang, "reason", "reasonEn")} ${names}. ${tail}`.trim();
   }
   if (tool === "save_profile") {
-    return result.complete ? "身體和目標資料已寫進記憶，欄位足夠計算預算。" : `已記下部分資料，還缺：${(result.errors || []).join("、") || "一些欄位"}。`;
+    return result.complete
+      ? (en ? "The body and goal fields are stored and enough to calculate a budget." : "身體和目標資料已寫進記憶，欄位足夠計算預算。")
+      : (en ? `Partial data stored. Still missing: ${(result.errors || []).join(", ") || "some fields"}.` : `已記下部分資料，還缺：${(result.errors || []).join("、") || "一些欄位"}。`);
   }
-  return "工具已返回。";
+  return en ? "The tool returned." : "工具已返回。";
 }
 
-export function askForMissing(memory, parsed) {
-  if (memory.pending && parsed.grams == null) return "請確認菜名，並告訴我克數。確認之前我不查熱量。";
+export function askForMissing(memory, parsed, lang = "zh") {
+  const en = lang === "en";
+  if (memory.pending && parsed.grams == null) return en ? "Confirm the dish name and tell me the grams. I will not look up calories before that." : "請確認菜名，並告訴我克數。確認之前我不查熱量。";
   if ((parsed.intents.calories || parsed.intents.plan || parsed.profile.goal) && !memory.needs) {
-    return "要計每日預算，請在對話提供：體重 kg、身高 cm、年齡、男或女、活動量（少動／中度／高活動）、目標（減脂／增肌／維持）和目標體重。";
+    return en
+      ? "To calculate a daily budget, the saved profile needs weight kg, height cm, age, sex, activity, goal, and target weight."
+      : "要計每日預算，請在對話提供：體重 kg、身高 cm、年齡、男或女、活動量（少動／中度／高活動）、目標（減脂／增肌／維持）和目標體重。";
   }
-  if (parsed.intents.places && !memory.places?.ok) return "查附近餐廳前，請允許定位，或輸入地區，例如：附近 地區：九龍塘。";
+  if (parsed.intents.places && !memory.places?.ok) return en ? "Before a nearby search, allow location or type an area, for example: nearby area: Kowloon Tong." : "查附近餐廳前，請允許定位，或輸入地區，例如：附近 地區：九龍塘。";
   return "";
 }

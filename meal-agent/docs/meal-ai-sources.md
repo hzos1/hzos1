@@ -76,7 +76,7 @@
 ### 可直接用的模型
 
 - **[nateraw/food](https://huggingface.co/nateraw/food)**：`google/vit-base-patch16-224-in21k` 在 Food-101 上微調。模型卡自述驗證集準確率 0.8913。輸出 101 類菜名與信心，沒有克數、沒有熱量。可在本機用 Transformers 跑，不必付費。模型卡沒有另寫授權；Food-101 影像的限制仍在。中式混合餐、一盤多道菜會失敗。
-- **Gemini 多模態（免費層，當菜名解析器）**：[定價](https://ai.google.dev/gemini-api/docs/pricing)、[額度](https://ai.google.dev/gemini-api/docs/rate-limits)、金鑰在 [Google AI Studio](https://aistudio.google.com/apikey)。2026-11-17 定價頁上，`gemini-3.5-flash-lite` 的標準輸入（含影像）與輸出在免費層不計費，並寫成適合大量 agent 工作。免費層內容可能被用來改進 Google 產品。額度以該專案在 AI Studio 顯示的數字為準，文件不再公布固定的每分鐘次數。請模型只回食物名稱與估計克數，熱量仍查 USDA 或臺灣表。示範用虛構個資。
+- 雲端聊天控制器不用 Gemini。本示範在有 `XAI_API_KEY` 時呼叫 xAI Chat Completions：`POST https://api.x.ai/v1/chat/completions`，預設模型 `grok-4.7`（可用 `XAI_MODEL` 改）。模型只選工具，熱量仍查 USDA 或臺灣表。沒有金鑰就用本地 `onnx-community/Qwen2.5-0.5B-Instruct`，再不行就用確定性規劃。
 
 ### 論文（說明方法，沒有可呼叫的 API）
 
@@ -133,7 +133,7 @@ TDEE = BMR × PAL。1.50、1.75、2.10 是各檔範圍內的代表值，方便�
 - SDK 本身：[vercel/ai](https://github.com/vercel/ai)，Apache-2.0，說明在 [ai-sdk.dev](https://ai-sdk.dev/)
 - 更小、已部署、看得出工具被呼叫的參考頁：[ai-sdk-from-zero.vercel.app](https://ai-sdk-from-zero.vercel.app/)，程式 [dev48v/ai-sdk-from-zero](https://github.com/dev48v/ai-sdk-from-zero)。它用 Gemini 免費金鑰，工具是時間與字數，可改成營養工具
 
-食譜裡的模型字串要換成 AI Studio 的免費模型（優先 `gemini-3.5-flash-lite`）。先在 AI Studio 確認該模型可以 function calling；不行就改定價頁上另一個免費 Flash。這一步要免費金鑰，不是付費金鑰。免費層不要送真實健康資料。
+食譜裡的模型字串不要接 Gemini。本示範的雲端控制器是 xAI Grok（預設 `grok-4.7`）。金鑰放在環境變數 `XAI_API_KEY` 或 gitignore 的 `.env`，不要送真實健康資料。
 
 若報告要引用「模型先想再行動」這類論文，用 Yao 等，[ReAct，ICLR 2023](https://arxiv.org/abs/2210.03629)。示範頁不必實作完整的 thought / action / observation 軌跡；工具呼叫就是可展示的版本。
 
@@ -143,11 +143,11 @@ TDEE = BMR × PAL。1.50、1.75、2.10 是各檔範圍內的代表值，方便�
 
 1. **營養資料庫：USDA FoodData Central API。** 免費金鑰、CC0、能依文字搜尋並回傳熱量與三大營養素。中文食材用同一支 `lookup_meal` 先查下載好的臺灣食品營養成分表，查不到再查 USDA。香港本地菜用手動抄的小表。Open Food Facts 只留給條碼。
 2. **每日需要：Mifflin–St Jeor × FAO 的 PAL（1.50 / 1.75 / 2.10）。** 幾十行就能算完，有論文與 FAO 報告可引用，不必付費，也不會因 API 額度在示範時失敗。減重減 500 kcal、增重加 400 kcal，頁面標成粗估。
-3. **照片：`nateraw/food` 只輸出菜名，使用者確認克數後查 USDA。** 本機可跑、不必付費、Food-101 與 89% 的驗證準確率寫得進報告。它認不好中式混合餐；那種照片改走文字，或讓 Gemini 免費層只回菜名與克數，熱量仍查資料庫。Nutrition5k 用來說明「照片直接回歸熱量」誤差仍大，不拿來訓練。
-4. **Agent：Vercel AI SDK 的工具呼叫網頁。** 食譜有完整程式，[chatbot.ai-sdk.dev](https://chatbot.ai-sdk.dev/) 是可打開的網頁，授權 Apache-2.0。三個工具對上三項功能。語言模型用 Gemini 免費層。不要採用整包 `vercel/chatbot`（資料庫與登入超出作業範圍），也不要接 Edamam、Nutritionix 或 LogMeal 的付費金鑰。
+3. **照片：本機菜名模型只輸出菜名，使用者確認克數後查 USDA。** 它認不好中式混合餐；那種照片改走文字。熱量仍查資料庫。Nutrition5k 用來說明「照片直接回歸熱量」誤差仍大，不拿來訓練。
+4. **Agent：工具呼叫迴圈。** 雲端控制器是 xAI Grok，不是 Gemini。沒有 `XAI_API_KEY` 時用本地小模型，再退回確定性規劃。不要採用整包 `vercel/chatbot`，也不要接 Edamam、Nutritionix 或 LogMeal 的付費金鑰。登入只用電郵和密碼，沒有 Google 登入。
 
 ---
 
 ## 7. 實作時採用的頁面（2026-11-17）
 
-上面第 5 節的食譜是資料來源，不是最後的畫面。示範是同一個響應式網頁，聊天室不是預設入口。路由是 `/onboarding`、`/home`、`/analyze`、`/plan`、`/places`、`/more`、`/chat`、`/profile`。每頁的動作都走同一套工具迴圈，並顯示 thought / action / observation。這份筆記前文說「不必實作完整軌跡」只描述食譜；本示範有做軌跡。沒有把這份筆記改寫成可繳交的報告正文。
+上面第 5 節的食譜是資料來源，不是最後的畫面。示範是同一個網站：手機用底部選單，電腦用側欄，功能相同。聊天室不是預設入口。註冊在 `/register`，登入在 `/login`，完成後到 `/home`。其他路由是 `/analyze`、`/plan`、`/places`、`/more`、`/chat`、`/profile`。每頁的動作都走同一套工具迴圈，並顯示 thought / action / observation。雲端模型是 Grok。設定方式：PowerShell 執行 `$env:XAI_API_KEY="你的金鑰"`，或在 `meal-agent/.env` 寫 `XAI_API_KEY=你的金鑰`（該檔已 gitignore），然後重新 `npm start`。不要把金鑰寫進倉庫。這份筆記前文說「不必實作完整軌跡」只描述食譜；本示範有做軌跡。沒有把這份筆記改寫成可繳交的報告正文。

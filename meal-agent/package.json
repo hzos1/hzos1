@@ -6,7 +6,7 @@
   "description": "DSC4070 meal agent with separate pages for onboarding, home, analysis, plan, places, chat, and profile.",
   "scripts": {
     "start": "node src/server.js",
-    "test": "node --test test/agent.test.js",
+    "test": "node --test test/agent.test.js test/auth.test.js",
     "eval": "node src/eval.js",
     "build-foods": "python3 scripts/build-food-table.py"
   },

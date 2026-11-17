@@ -29,7 +29,7 @@ function allowedFoods(avoid) {
 
 export function suggestMeal({ budgetKcal, avoid = [], goal = "maintain", sodiumTight = false, needProduce = false, needProtein = false }) {
   if (!(budgetKcal > 0)) {
-    return { ok: true, items: [], totalKcal: 0, reason: "剩餘預算不是正數，所以不推薦食物。", passedChecks: false };
+    return { ok: true, items: [], totalKcal: 0, reason: "剩餘預算不是正數，所以不推薦食物。", reasonEn: "The remaining budget is not positive, so no food is suggested.", passedChecks: false };
   }
   let pool = allowedFoods(avoid);
   if (sodiumTight) {
@@ -68,7 +68,7 @@ export function suggestMeal({ budgetKcal, avoid = [], goal = "maintain", sodiumT
     for (const food of pool.slice(0, 30)) consider([food]);
   }
   if (candidates.length === 0) {
-    return { ok: true, items: [], totalKcal: 0, reason: "資料表裡沒有能放進剩餘預算、又符合忌口的菜式。", passedChecks: false };
+    return { ok: true, items: [], totalKcal: 0, reason: "資料表裡沒有能放進剩餘預算、又符合忌口的菜式。", reasonEn: "No cited row fits the remaining budget and the avoid list.", passedChecks: false };
   }
   candidates.sort((a, b) => {
     const aProduce = a.items.some((item) => item.produce) ? 1 : 0;
@@ -82,6 +82,7 @@ export function suggestMeal({ budgetKcal, avoid = [], goal = "maintain", sodiumT
     items: best.items,
     totalKcal: best.totalKcal,
     reason: "只從已引用的資料列組合，總熱量不超過這一餐的上限。",
+    reasonEn: "Combined only from cited rows. Total energy does not exceed this meal's cap.",
     passedChecks: false,
   };
 }

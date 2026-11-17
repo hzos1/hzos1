@@ -29,12 +29,12 @@ async function load() {
 }
 
 export async function recognizeDish(image) {
-  if (!image?.base64) return { ok: false, reason: "沒有收到圖片。" };
+  if (!image?.base64) return { ok: false, reason: "沒有收到圖片。", reasonEn: "No image was received." };
   let classifier;
   try {
     classifier = await preloadRecognizer();
   } catch (error) {
-    return { ok: false, reason: `菜名模型載入失敗：${error.message}` };
+    return { ok: false, reason: `菜名模型載入失敗：${error.message}`, reasonEn: `The dish-name model failed to load: ${error.message}` };
   }
   const bytes = Buffer.from(image.base64, "base64");
   const dir = await mkdtemp(path.join(tmpdir(), "meal-"));
@@ -43,7 +43,7 @@ export async function recognizeDish(image) {
   const ranked = await classifier(file, { top_k: 3 });
   const list = Array.isArray(ranked) ? ranked : [ranked];
   const top = list[0];
-  if (!top?.label) return { ok: false, reason: "模型沒有返回菜名。" };
+  if (!top?.label) return { ok: false, reason: "模型沒有返回菜名。", reasonEn: "The model did not return a dish name." };
   const proposal = proposalForLabel(top.label);
   return {
     ok: true,

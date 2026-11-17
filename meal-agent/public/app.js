@@ -1,30 +1,58 @@
 const view = document.querySelector("#view");
 const tabbar = document.querySelector("#tabbar");
+const sidebar = document.querySelector("#sidebar");
 const title = document.querySelector("#title");
-const KEY = "meal-agent-record";
+const LANG_KEY = "meal-lang";
 const STALE_MS = 30 * 24 * 60 * 60 * 1000;
+const AVOID_IDS = ["pork", "beef", "poultry", "seafood", "egg", "dairy", "soy", "gluten", "nuts", "sesame"];
 const PAGES = {
-  "/onboarding": "入門",
-  "/home": "今日概覽",
-  "/analyze": "餐點分析",
-  "/plan": "飲食計劃",
-  "/places": "附近餐廳",
-  "/more": "更多",
-  "/chat": "聊天室",
-  "/profile": "我的檔案",
+  "/login": "loginTitle",
+  "/register": "registerTitle",
+  "/home": "pageHome",
+  "/analyze": "pageAnalyze",
+  "/plan": "pagePlan",
+  "/places": "pagePlaces",
+  "/more": "pageMore",
+  "/chat": "pageChat",
+  "/profile": "pageProfile",
 };
+let lang = localStorage.getItem(LANG_KEY) === "en" ? "en" : "zh";
+let me = null;
 let image = null;
 let stream = null;
 let chatLog = [];
+let meta = null;
 
-function loadRecord() {
-  try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch { return null; }
+function t(key) {
+  const value = MEAL_I18N[lang][key];
+  return value == null ? key : value;
 }
-function saveRecord(record) { localStorage.setItem(KEY, JSON.stringify(record)); }
-function profileReady(record) {
-  const profile = record?.profile;
-  return Boolean(profile?.weightKg && profile.heightCm && profile.age && profile.sex && profile.activity && profile.goal && profile.targetWeightKg && profile.trainingDays != null);
+function avoidLabel(id) { return MEAL_I18N[lang].avoid[id] || id; }
+function setLang(next) {
+  const draft = snapshotForm();
+  lang = next;
+  localStorage.setItem(LANG_KEY, lang);
+  document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
+  render();
+  restoreForm(draft);
 }
+function snapshotForm() {
+  const data = {};
+  for (const el of document.querySelectorAll("input, select, textarea")) {
+    if (!el.id) continue;
+    data[el.id] = el.type === "checkbox" ? el.checked : el.value;
+  }
+  return data;
+}
+function restoreForm(data) {
+  for (const [id, value] of Object.entries(data || {})) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    if (el.type === "checkbox") el.checked = Boolean(value);
+    else el.value = value;
+  }
+}
+
 function stale(record) {
   if (!record?.updatedAt) return false;
   return Date.now() - new Date(record.updatedAt).getTime() >= STALE_MS;
@@ -36,68 +64,80 @@ function showReminder(record) {
 }
 
 function go(path) {
-  const record = loadRecord();
-  if (path !== "/onboarding" && !profileReady(record)) path = "/onboarding";
+  if (!me && path !== "/login" && path !== "/register") path = "/login";
+  if (me && (path === "/login" || path === "/register" || path === "/onboarding" || path === "/")) path = "/home";
   history.pushState({}, "", path);
   render();
 }
 
-window.addEventListener("popstate", render);
-document.querySelector("#tabbar").addEventListener("click", (event) => {
-  const link = event.target.closest("a");
-  if (!link) return;
-  event.preventDefault();
-  go(link.dataset.path);
+document.addEventListener("click", (event) => {
+  const link = event.target.closest("a[href]");
+  const href = link?.getAttribute("href") || "";
+  if (link && href.startsWith("/") && !href.startsWith("//")) {
+    event.preventDefault();
+    go(link.dataset.path || href);
+  }
+  if (event.target?.id === "lang-toggle" || event.target?.id === "lang-side") setLang(lang === "en" ? "zh" : "en");
+  if (event.target?.id === "logout" || event.target?.id === "logout-side") logout();
+  if (event.target?.id === "dismiss-reminder") dismissReminder();
 });
+window.addEventListener("popstate", render);
+
+function chrome() {
+  document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
+  document.querySelector("#disclaimer").textContent = t("disclaimer");
+  document.querySelector("#brand-name").textContent = t("brand");
+  document.querySelector("#brand-sub").textContent = t("brandSub");
+  document.querySelector("#logout").textContent = t("logout");
+  document.querySelector("#logout-side").textContent = t("logout");
+  for (const button of [document.querySelector("#lang-toggle"), document.querySelector("#lang-side")]) button.textContent = lang === "en" ? "中文" : "EN";
+  const labels = { "/home": "navHome", "/analyze": "navAnalyze", "/plan": "navPlan", "/places": "navPlaces", "/more": "navMore" };
+  for (const link of document.querySelectorAll("#tabbar a, #side-nav a")) link.textContent = t(labels[link.dataset.path]);
+  document.querySelector("#model-line").textContent = modelText();
+}
 
 function render() {
   let path = location.pathname;
+  if (path === "/onboarding") path = "/register";
   if (!PAGES[path]) path = "/";
-  const record = loadRecord();
-  if (path === "/" || (path !== "/onboarding" && !profileReady(record))) {
-    history.replaceState({}, "", profileReady(record) ? "/home" : "/onboarding");
-    path = location.pathname;
+  if (!me && path !== "/login" && path !== "/register") path = "/login";
+  if (me && (path === "/" || path === "/login" || path === "/register")) path = "/home";
+  if (location.pathname !== path) history.replaceState({}, "", path);
+  const guest = path === "/login" || path === "/register";
+  document.body.classList.toggle("guest", guest);
+  sidebar.hidden = guest;
+  tabbar.hidden = guest;
+  document.querySelector("#logout").hidden = guest;
+  title.textContent = t(PAGES[path] || "brand");
+  for (const link of document.querySelectorAll("#tabbar a, #side-nav a")) {
+    const more = (path === "/chat" || path === "/profile") && link.dataset.path === "/more";
+    link.classList.toggle("active", link.dataset.path === path || more);
   }
-  title.textContent = PAGES[path] || "餐點 agent";
-  tabbar.hidden = path === "/onboarding";
-  for (const link of tabbar.querySelectorAll("a")) link.classList.toggle("active", link.dataset.path === path || (path === "/chat" || path === "/profile") && link.dataset.path === "/more");
-  const page = {
-    "/onboarding": renderOnboarding,
-    "/home": renderHome,
-    "/analyze": renderAnalyze,
-    "/plan": renderPlan,
-    "/places": renderPlaces,
-    "/more": renderMore,
-    "/chat": renderChat,
-    "/profile": renderProfile,
-  }[path];
+  chrome();
   view.innerHTML = "";
-  page(record);
+  const page = { "/login": renderLogin, "/register": renderRegister, "/home": renderHome, "/analyze": renderAnalyze, "/plan": renderPlan, "/places": renderPlaces, "/more": renderMore, "/chat": renderChat, "/profile": renderProfile }[path];
+  page();
 }
 
 function field(label, html) { return `<label>${label}${html}</label>`; }
-const AVOIDS = [["pork", "豬肉"], ["beef", "牛肉"], ["poultry", "禽肉"], ["seafood", "海鮮"], ["egg", "蛋"], ["dairy", "奶"], ["soy", "大豆"], ["gluten", "麩質"], ["nuts", "堅果"], ["sesame", "芝麻"]];
-
-function profileForm(profile = {}, avoid = []) {
+function profileFields(profile = {}, avoid = []) {
   const goal = profile.goal || "";
   const sex = profile.sex || "";
   const activity = profile.activity || "";
   return `<div class="grid">
-    ${field("身高 cm", `<input id="height" inputmode="decimal" value="${escapeAttr(profile.heightCm ?? "")}">`)}
-    ${field("體重 kg", `<input id="weight" inputmode="decimal" value="${escapeAttr(profile.weightKg ?? "")}">`)}
-    ${field("年齡", `<input id="age" inputmode="numeric" value="${escapeAttr(profile.age ?? "")}">`)}
-    ${field("目標體重 kg", `<input id="target" inputmode="decimal" value="${escapeAttr(profile.targetWeightKg ?? "")}">`)}
-    ${field("生理性別", `<select id="sex"><option value="">未填</option><option value="male" ${sex === "male" ? "selected" : ""}>男</option><option value="female" ${sex === "female" ? "selected" : ""}>女</option></select>`)}
-    ${field("活動量", `<select id="activity"><option value="">未填</option><option value="low" ${activity === "low" ? "selected" : ""}>少動 PAL 1.50</option><option value="moderate" ${activity === "moderate" ? "selected" : ""}>中度 PAL 1.75</option><option value="high" ${activity === "high" ? "selected" : ""}>高活動 PAL 2.10</option></select>`)}
-    ${field("目標類型", `<select id="goal"><option value="">未填</option><option value="lose" ${goal === "lose" ? "selected" : ""}>cut／減脂</option><option value="gain" ${goal === "gain" ? "selected" : ""}>bulk／增肌</option><option value="maintain" ${goal === "maintain" ? "selected" : ""}>maintain／維持</option></select>`)}
-    ${field("每週訓練天數", `<input id="days" inputmode="numeric" min="0" max="7" value="${escapeAttr(profile.trainingDays ?? "")}">`)}
+    ${field(t("height"), `<input id="height" inputmode="decimal" value="${escapeAttr(profile.heightCm ?? "")}">`)}
+    ${field(t("weight"), `<input id="weight" inputmode="decimal" value="${escapeAttr(profile.weightKg ?? "")}">`)}
+    ${field(t("age"), `<input id="age" inputmode="numeric" value="${escapeAttr(profile.age ?? "")}">`)}
+    ${field(t("target"), `<input id="target" inputmode="decimal" value="${escapeAttr(profile.targetWeightKg ?? "")}">`)}
+    ${field(t("sex"), `<select id="sex"><option value="">${t("sexUnset")}</option><option value="male" ${sex === "male" ? "selected" : ""}>${t("sexMale")}</option><option value="female" ${sex === "female" ? "selected" : ""}>${t("sexFemale")}</option></select>`)}
+    ${field(t("activity"), `<select id="activity"><option value="">${t("activityUnset")}</option><option value="low" ${activity === "low" ? "selected" : ""}>${t("activityLow")}</option><option value="moderate" ${activity === "moderate" ? "selected" : ""}>${t("activityModerate")}</option><option value="high" ${activity === "high" ? "selected" : ""}>${t("activityHigh")}</option></select>`)}
+    ${field(t("goal"), `<select id="goal"><option value="">${t("goalUnset")}</option><option value="lose" ${goal === "lose" ? "selected" : ""}>${t("goalLose")}</option><option value="gain" ${goal === "gain" ? "selected" : ""}>${t("goalGain")}</option><option value="maintain" ${goal === "maintain" ? "selected" : ""}>${t("goalMaintain")}</option></select>`)}
+    ${field(t("days"), `<input id="days" inputmode="numeric" min="0" max="7" value="${escapeAttr(profile.trainingDays ?? "")}">`)}
   </div>
-  <fieldset class="card"><legend>想避開的食材（可留空）</legend><div class="checks">${AVOIDS.map(([id, label]) => `<label><input type="checkbox" name="avoid" value="${id}" ${avoid.includes(id) ? "checked" : ""}>${label}</label>`).join("")}</div></fieldset>
-  <p class="note">公式只有男、女兩條已發表算式。增肌只配合目標體重，不量度肌肉公斤。空白不會由模型填上。</p>`;
+  <fieldset><legend>${t("avoidLegend")}</legend><div class="checks">${AVOID_IDS.map((id) => `<label><input id="avoid-${id}" type="checkbox" ${avoid.includes(id) ? "checked" : ""}>${avoidLabel(id)}</label>`).join("")}</div></fieldset>
+  <p class="note">${t("profileNote")}</p>`;
 }
-function readAvoid() {
-  return [...document.querySelectorAll("input[name=avoid]:checked")].map((input) => input.value);
-}
+function readAvoid() { return AVOID_IDS.filter((id) => document.querySelector(`#avoid-${id}`)?.checked); }
 function readProfileForm() {
   const value = (id) => document.querySelector(id).value;
   return {
@@ -112,48 +152,81 @@ function readProfileForm() {
   };
 }
 function num(value) { return value === "" ? null : Number(value); }
+function clientProfileError(profile) {
+  if ([profile.heightCm, profile.weightKg, profile.age, profile.targetWeightKg].some((value) => !Number.isFinite(value))) return t("errNumbers");
+  if (!profile.sex || !profile.activity || !profile.goal) return t("errChoices");
+  if (!Number.isInteger(profile.trainingDays) || profile.trainingDays < 0 || profile.trainingDays > 7) return t("errDays");
+  return "";
+}
+function errorText(data) {
+  if (data?.errors?.length) return data.errors.map((code) => t(code)).join(" ");
+  return t(data?.error || "request-failed");
+}
 
-function renderOnboarding() {
-  view.innerHTML = `<section class="card"><h2>先建立檔案</h2><p>之後的預算、餐單和訓練對照都只用這份檔案。模型不會猜缺少的數字。</p>${profileForm()}<p id="form-error"></p><button id="enter" type="button">儲存並進入今日概覽</button></section>`;
-  document.querySelector("#enter").addEventListener("click", () => {
-    const profile = readProfileForm();
-    const error = clientProfileError(profile);
-    if (error) { document.querySelector("#form-error").textContent = error; return; }
-    saveRecord({ profile, avoid: readAvoid(), updatedAt: new Date().toISOString(), meals: loadRecord()?.meals || [], reminderDismissedAt: null });
+function renderLogin() {
+  view.innerHTML = `<section class="card auth-card"><h2>${t("loginTitle")}</h2><p>${t("loginLead")}</p><div class="grid">${field(t("email"), `<input id="email" type="email" autocomplete="username">`)}${field(t("password"), `<input id="password" type="password" autocomplete="current-password">`)}</div><p id="form-error" class="error"></p><button id="enter" type="button">${t("loginSubmit")}</button><p><a href="/register">${t("noAccount")}</a></p></section>`;
+  document.querySelector("#enter").addEventListener("click", async () => {
+    const response = await fetch("/api/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: document.querySelector("#email").value, password: document.querySelector("#password").value }) });
+    const data = await response.json();
+    if (!response.ok) { document.querySelector("#form-error").textContent = errorText(data); return; }
+    me = data.user;
     go("/home");
   });
 }
 
-function renderProfile(record) {
-  view.innerHTML = `<section class="card"><h2>我的檔案</h2><p class="note">上次儲存：${escapeHtml(record.updatedAt || "沒有")}</p>${reminderHtml(record)}${profileForm(record.profile, record.avoid || [])}<p id="form-error"></p><button id="save-profile" type="button">更新檔案</button></section>`;
-  document.querySelector("#save-profile").addEventListener("click", () => {
+function renderRegister() {
+  view.innerHTML = `<section class="card auth-card"><h2>${t("registerTitle")}</h2><p>${t("registerLead")}</p><div class="auth-grid"><div class="grid">${field(t("email"), `<input id="email" type="email" autocomplete="username">`)}${field(t("password"), `<input id="password" type="password" autocomplete="new-password">`)}<p class="note">${t("passwordHint")}</p><label><input id="ack" type="checkbox">${t("disclaimerAck")}</label></div><div>${profileFields()}</div></div><p id="form-error" class="error"></p><button id="enter" type="button">${t("registerSubmit")}</button><p><a href="/login">${t("haveAccount")}</a></p></section>`;
+  document.querySelector("#enter").addEventListener("click", async () => {
     const profile = readProfileForm();
-    const error = clientProfileError(profile);
-    if (error) { document.querySelector("#form-error").textContent = error; return; }
-    saveRecord({ ...record, profile, avoid: readAvoid(), updatedAt: new Date().toISOString(), reminderDismissedAt: null });
+    const local = clientProfileError(profile);
+    if (local) { document.querySelector("#form-error").textContent = local; return; }
+    if (!document.querySelector("#ack").checked) { document.querySelector("#form-error").textContent = t("errDisclaimer"); return; }
+    const response = await fetch("/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: document.querySelector("#email").value, password: document.querySelector("#password").value, profile, avoid: readAvoid(), disclaimerAck: true }) });
+    const data = await response.json();
+    if (!response.ok) { document.querySelector("#form-error").textContent = errorText(data); return; }
+    me = data.user;
     go("/home");
   });
 }
 
-function renderHome(record) {
-  view.innerHTML = `<section class="card"><h2>今日能量</h2>${reminderHtml(record)}<p id="budget">正在用檔案呼叫能量工具…</p></section><section class="card"><h2>近期餐點</h2><div id="meals"></div></section><section class="card"><h2>工具軌跡</h2><div id="trace"></div></section>`;
-  renderMeals(record);
-  ask({ message: "請計算今日熱量預算", profile: record.profile, avoid: record.avoid || [], brain: "deterministic" }).then((data) => {
+function renderProfile() {
+  view.innerHTML = `<section class="card"><h2>${t("pageProfile")}</h2><p class="note">${t("lastSaved")}：${escapeHtml(me.updatedAt || t("neverSaved"))}</p>${reminderHtml()}${profileFields(me.profile, me.avoid || [])}<p id="form-error" class="error"></p><button id="save-profile" type="button">${t("saveProfile")}</button></section>`;
+  document.querySelector("#save-profile").addEventListener("click", async () => {
+    const profile = readProfileForm();
+    const local = clientProfileError(profile);
+    if (local) { document.querySelector("#form-error").textContent = local; return; }
+    const response = await fetch("/api/profile", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profile, avoid: readAvoid() }) });
+    const data = await response.json();
+    if (!response.ok) { document.querySelector("#form-error").textContent = errorText(data); return; }
+    me = data.user;
+    go("/home");
+  });
+}
+
+function renderHome() {
+  view.innerHTML = `<div class="home-grid"><section class="card"><h2>${t("homeEnergy")}</h2>${reminderHtml()}<p id="budget">${t("budgetLoading")}</p></section><section class="card"><h2>${t("homeMeals")}</h2><div id="meals"></div></section><section class="card"><h2>${t("homeTips")}</h2><p>${t("tip1")}</p><p>${t("tip2")}</p><p>${t("tip3")}</p></section></div><section class="card"><h2>${t("homeTrace")}</h2><div id="trace"></div></section>`;
+  renderMeals();
+  ask({ message: lang === "en" ? "Calculate today's calorie budget" : "請計算今日熱量預算", brain: "deterministic" }).then((data) => {
+    if (data.user) me = data.user;
     const needs = data.memory?.needs;
-    document.querySelector("#budget").textContent = needs?.ok
-      ? `BMR ${needs.bmrKcal} kcal，PAL ${needs.pal}，TDEE ${needs.tdeeKcal} kcal，課堂目標 ${needs.targetKcal} kcal。`
-      : `未能計算：${(needs?.errors || data.memory?.needs?.errors || ["檔案未通過驗證"]).join("、")}`;
+    const budget = document.querySelector("#budget");
+    if (!budget) return;
+    budget.innerHTML = needs?.ok
+      ? `<div class="kcal">${needs.targetKcal}</div><p>BMR ${needs.bmrKcal}&nbsp;kcal · PAL ${needs.pal} · TDEE ${needs.tdeeKcal}&nbsp;kcal</p>`
+      : `${t("budgetBad")}：${escapeHtml((needs?.errors || ["invalid-profile"]).join(", "))}`;
     renderTrace(data);
-  }).catch(() => { document.querySelector("#budget").textContent = "能量工具這輪沒有返回。"; });
+  }).catch(() => { const budget = document.querySelector("#budget"); if (budget) budget.textContent = t("budgetFail"); });
 }
 
-function renderMeals(record) {
-  const meals = record.meals || [];
-  document.querySelector("#meals").innerHTML = meals.length ? meals.slice(-5).reverse().map((meal) => `<p>${escapeHtml(meal.name)} ${meal.grams} 克：${meal.nutrients?.energyKcal ?? "沒有熱量"} kcal。來源 ${escapeHtml(meal.sourceId || "沒有")}</p>`).join("") : "<p>還沒有分析過的餐點。</p>";
+function renderMeals() {
+  const host = document.querySelector("#meals");
+  if (!host) return;
+  const meals = me.meals || [];
+  host.innerHTML = meals.length ? meals.slice(-5).reverse().map((meal) => `<p>${escapeHtml(meal.name)} ${meal.grams} ${t("grams")}：${meal.nutrients?.energyKcal ?? t("noEnergy")} kcal。${t("source")} ${escapeHtml(meal.sourceId || t("neverSaved"))}</p>`).join("") : `<p>${t("emptyMeals")}</p>`;
 }
 
 function renderAnalyze() {
-  view.innerHTML = `<section class="card"><h2>餐點分析</h2><p>相片只負責菜名。確認菜名和克數之後才查資料庫。</p><div id="preview"></div><div id="camera-panel" hidden><video id="video" playsinline autoplay muted></video><button id="shutter" class="secondary" type="button">拍下這張</button></div><div class="actions"><label class="file">拍照<input id="camera-file" type="file" accept="image/*" capture="environment"></label><label class="file">相簿<input id="album-file" type="file" accept="image/*"></label><button id="live" class="secondary" type="button">開鏡頭</button></div><div id="confirm"></div><div id="result"></div></section><section class="card"><h2>工具軌跡</h2><div id="trace"></div></section>`;
+  view.innerHTML = `<div class="analyze-layout"><section class="card"><h2>${t("pageAnalyze")}</h2><p>${t("analyzeLead")}</p><div id="preview" class="preview"></div><div id="camera-panel" hidden><video id="video" playsinline autoplay muted></video><button id="shutter" class="secondary" type="button">${t("shutter")}</button></div><div class="actions analyze-actions"><label class="file">${t("camera")}<input id="camera-file" type="file" accept="image/*" capture="environment"></label><label class="file">${t("album")}<input id="album-file" type="file" accept="image/*"></label><button id="live" class="secondary" type="button">${t("live")}</button></div></section><section class="card"><div id="confirm"></div><div id="result"></div><h2>${t("homeTrace")}</h2><div id="trace"></div></section></div>`;
   document.querySelector("#camera-file").addEventListener("change", (event) => useFile(event.target.files[0]));
   document.querySelector("#album-file").addEventListener("change", (event) => useFile(event.target.files[0]));
   document.querySelector("#live").addEventListener("click", openCamera);
@@ -163,100 +236,97 @@ function renderAnalyze() {
 async function useFile(file) {
   if (!file) return;
   image = await resize(file);
-  document.querySelector("#preview").innerHTML = `<img alt="餐點相片" src="data:image/jpeg;base64,${image.base64}">`;
-  const data = await ask({ message: "請只辨識菜名", image, profile: loadRecord()?.profile, brain: "deterministic" });
+  document.querySelector("#preview").innerHTML = `<img alt="" src="data:image/jpeg;base64,${image.base64}">`;
+  const data = await ask({ message: lang === "en" ? "Name the dish only" : "請只辨識菜名", image, brain: "deterministic" });
+  if (data.user) me = data.user;
   renderTrace(data);
   const step = (data.trace || []).find((item) => item.action?.tool === "recognize_dish");
   const observation = step?.observation;
   if (!observation?.ok) {
-    document.querySelector("#confirm").innerHTML = `<p>${escapeHtml(observation?.reason || "認菜失敗，請手動輸入。")}</p>${confirmFields("", "")}`;
+    document.querySelector("#confirm").innerHTML = `<p>${escapeHtml(lang === "en" ? (observation?.reasonEn || observation?.reason || t("recognizeFail")) : (observation?.reason || t("recognizeFail")))}</p>${confirmFields("", "")}`;
   } else {
     const name = observation.proposal?.name || observation.label || "";
-    document.querySelector("#confirm").innerHTML = `<p>模型菜名：${escapeHtml(observation.label)}。請確認資料列和克數，未確認前沒有卡路里。</p>${confirmFields(name, "")}`;
+    document.querySelector("#confirm").innerHTML = `<p>${t("modelName")}：${escapeHtml(observation.label)}. ${t("confirmBefore")}</p>${confirmFields(name, "")}`;
   }
   bindConfirm();
 }
-
 function confirmFields(name, grams) {
-  return `<div class="grid">${field("菜名", `<input id="dish" value="${escapeAttr(name)}">`)}${field("克數", `<input id="grams" inputmode="decimal" value="${escapeAttr(grams)}">`)}</div><button id="confirm-dish" type="button">確認並查資料庫</button>`;
+  return `<div class="grid">${field(t("dish"), `<input id="dish" value="${escapeAttr(name)}">`)}${field(t("grams"), `<input id="grams" inputmode="decimal" value="${escapeAttr(grams)}">`)}</div><button id="confirm-dish" type="button">${t("confirmLookup")}</button>`;
 }
 function bindConfirm() {
   document.querySelector("#confirm-dish").addEventListener("click", async () => {
     const name = document.querySelector("#dish").value.trim();
     const grams = document.querySelector("#grams").value.trim();
-    const data = await ask({ message: `確認 ${name} ${grams}克`, profile: loadRecord()?.profile, brain: "deterministic" });
+    const data = await ask({ message: `${lang === "en" ? "confirm" : "確認"} ${name} ${grams}${lang === "en" ? " g" : "克"}`, brain: "deterministic" });
+    if (data.user) me = data.user;
     renderTrace(data);
     const meal = (data.memory?.meals || []).at(-1);
-    if (!meal || meal.status !== "resolved") {
-      document.querySelector("#result").textContent = "資料庫沒有這一列，所以沒有卡路里。";
-      return;
-    }
-    const record = loadRecord();
-    record.meals = [...(record.meals || []), { ...meal, at: new Date().toISOString() }].slice(-30);
-    saveRecord(record);
+    if (!meal || meal.status !== "resolved") { document.querySelector("#result").textContent = t("noRow"); return; }
     const row = meal.nutrients;
-    document.querySelector("#result").innerHTML = `<p>${escapeHtml(meal.name)} ${meal.grams} 克：${row.energyKcal} kcal，蛋白質 ${row.proteinG} g，碳水 ${row.carbohydrateG} g，脂肪 ${row.fatG} g，鈉 ${row.sodiumMg ?? "資料沒有"}。來源 ${escapeHtml(meal.sourceId)}。</p>`;
+    document.querySelector("#result").innerHTML = `<p>${escapeHtml(meal.name)} ${meal.grams} ${t("grams")}：${row.energyKcal} kcal，${t("protein")} ${row.proteinG} g，${t("carb")} ${row.carbohydrateG} g，${t("fat")} ${row.fatG} g，${t("sodium")} ${row.sodiumMg ?? t("sodiumMissing")}。${t("source")} ${escapeHtml(meal.sourceId)}。</p>`;
   });
 }
 
-function renderPlan(record) {
-  view.innerHTML = `<section class="card"><h2>飲食計劃</h2><p>餐單、飲食原則和訓練次數都由工具按檔案產出。</p><button id="make-plan" type="button">產生下一餐和訓練對照</button><div id="result"></div></section><section class="card"><h2>工具軌跡</h2><div id="trace"></div></section>`;
+function renderPlan() {
+  view.innerHTML = `<section class="card"><h2>${t("pagePlan")}</h2><p>${t("planLead")}</p><button id="make-plan" type="button">${t("planButton")}</button><div id="result"></div></section><section class="card"><h2>${t("homeTrace")}</h2><div id="trace"></div></section>`;
   document.querySelector("#make-plan").addEventListener("click", async () => {
-    const data = await ask({ message: "請推薦下一餐，並講訓練次數", profile: record.profile, avoid: record.avoid || [], brain: "deterministic" });
+    const data = await ask({ message: lang === "en" ? "Suggest the next meal and the training days" : "請推薦下一餐，並講訓練次數", brain: "deterministic" });
+    if (data.user) me = data.user;
     renderTrace(data);
     const plan = data.memory?.plan;
     const training = data.memory?.training;
-    const lines = (plan?.items || []).map((item) => `${item.name} ${item.grams} 克，${item.nutrients.energyKcal} kcal，${item.sourceId}`);
-    document.querySelector("#result").innerHTML = `<p>${escapeHtml(training?.text || "")}</p><p>${escapeHtml(training?.statedNote || "")}</p><p>${plan?.passedChecks ? "餐單已通過檢查。" : "餐單未通過檢查。"} ${escapeHtml(lines.join("；") || plan?.reason || "")}</p><p>${escapeHtml((data.memory?.checks?.advice || []).join(""))}</p>`;
+    const lines = (plan?.items || []).map((item) => `${item.name} ${item.grams} ${t("grams")}, ${item.nutrients.energyKcal} kcal, ${item.sourceId}`);
+    const trainingText = lang === "en" ? `${training?.textEn || ""} ${training?.statedNoteEn || ""}` : `${training?.text || ""} ${training?.statedNote || ""}`;
+    const advice = lang === "en" ? (data.memory?.checks?.adviceEn || []) : (data.memory?.checks?.advice || []);
+    const reason = lang === "en" ? (plan?.reasonEn || plan?.reason || "") : (plan?.reason || "");
+    document.querySelector("#result").innerHTML = `<p>${escapeHtml(trainingText)}</p><p>${plan?.passedChecks ? t("planPassed") : t("planFailed")} ${escapeHtml(lines.join("; ") || reason)}</p><p>${escapeHtml(advice.join(" "))}</p>`;
   });
 }
 
 function renderPlaces() {
-  view.innerHTML = `<section class="card"><h2>附近餐廳</h2><p>只顯示 OpenStreetMap 返回的店。沒有菜單和卡路里就留空。</p><div class="actions"><button id="gps" type="button">同意定位</button></div><div class="grid">${field("地區", `<input id="area" placeholder="九龍塘">`)}</div><button id="area-go" class="secondary" type="button">用地區查詢</button><div id="result"></div></section><section class="card"><h2>工具軌跡</h2><div id="trace"></div></section>`;
+  view.innerHTML = `<section class="card"><h2>${t("pagePlaces")}</h2><p>${t("placesLead")}</p><div class="actions"><button id="gps" type="button">${t("gps")}</button></div><div class="grid">${field(t("area"), `<input id="area" placeholder="${escapeAttr(t("areaPlaceholder"))}">`)}</div><button id="area-go" class="secondary" type="button">${t("areaGo")}</button><div id="result"></div></section><section class="card"><h2>${t("homeTrace")}</h2><div id="trace"></div></section>`;
   document.querySelector("#gps").addEventListener("click", () => {
     navigator.geolocation.getCurrentPosition(async (position) => {
-      const data = await ask({ message: "附近餐廳", location: { consent: true, lat: position.coords.latitude, lon: position.coords.longitude }, profile: loadRecord()?.profile, brain: "deterministic" });
-      showPlaces(data);
-    }, () => { document.querySelector("#result").textContent = "定位被拒絕。可以改輸入地區。"; });
+      showPlaces(await ask({ message: lang === "en" ? "nearby restaurants" : "附近餐廳", location: { consent: true, lat: position.coords.latitude, lon: position.coords.longitude }, brain: "deterministic" }));
+    }, () => { document.querySelector("#result").textContent = t("locationDenied"); });
   });
   document.querySelector("#area-go").addEventListener("click", async () => {
     const area = document.querySelector("#area").value.trim();
-    const data = await ask({ message: `附近餐廳 地區：${area}`, location: { consent: true, area }, profile: loadRecord()?.profile, brain: "deterministic" });
-    showPlaces(data);
+    showPlaces(await ask({ message: `${lang === "en" ? "nearby restaurants area:" : "附近餐廳 地區："}${area}`, location: { consent: true, area }, brain: "deterministic" }));
   });
 }
 function showPlaces(data) {
+  if (data.user) me = data.user;
   renderTrace(data);
   const places = data.memory?.places;
-  if (!places?.ok) { document.querySelector("#result").textContent = places?.reason || "沒有查到。"; return; }
-  document.querySelector("#result").innerHTML = `<p>${escapeHtml(places.reason)}</p>` + (places.places || []).map((place) => `<p><a href="${escapeAttr(place.url)}">${escapeHtml(place.name)}</a>${place.cuisine ? `，cuisine: ${escapeHtml(place.cuisine)}` : ""}</p>`).join("") + "<p>這些不是菜單，也沒有卡路里。</p>";
+  const reason = lang === "en" ? (places?.reasonEn || places?.reason) : places?.reason;
+  if (!places?.ok) { document.querySelector("#result").textContent = reason || t("placesEmpty"); return; }
+  document.querySelector("#result").innerHTML = `<p>${escapeHtml(reason || "")}</p>` + (places.places || []).map((place) => `<p><a href="${escapeAttr(place.url)}">${escapeHtml(place.name)}</a>${place.cuisine ? ` · ${escapeHtml(place.cuisine)}` : ""}</p>`).join("") + `<p>${t("notMenu")}</p>`;
 }
 
 function renderMore() {
-  view.innerHTML = `<section class="links"><a href="/chat">聊天室：額外的 agent 對話，不是主畫面</a><a href="/profile">我的檔案：查看和更新身體資料</a></section>`;
-  view.querySelectorAll("a").forEach((link) => link.addEventListener("click", (event) => { event.preventDefault(); go(link.getAttribute("href")); }));
+  view.innerHTML = `<section class="links"><a href="/chat"><strong>${t("moreChat")}</strong><br>${t("moreChatNote")}</a><a href="/profile"><strong>${t("moreProfile")}</strong><br>${t("moreProfileNote")}</a></section>`;
 }
-
 function renderChat() {
-  view.innerHTML = `<section class="card"><p>這是額外頁面。主要拍照流程在餐點分析。</p><ol id="log"></ol><div id="preview"></div><textarea id="message" placeholder="可以問熱量、訓練次數或附近晚餐"></textarea><div class="actions"><label class="file">拍照<input id="camera-file" type="file" accept="image/*" capture="environment"></label><label class="file">相簿<input id="album-file" type="file" accept="image/*"></label><button id="send" type="button">送出</button></div></section>`;
+  view.innerHTML = `<section class="card"><p>${t("chatLead")}</p><ol id="log"></ol><div id="preview" class="preview"></div><textarea id="message" placeholder="${escapeAttr(t("chatPlaceholder"))}"></textarea><div class="actions"><label class="file">${t("camera")}<input id="camera-file" type="file" accept="image/*" capture="environment"></label><label class="file">${t("album")}<input id="album-file" type="file" accept="image/*"></label><button id="send" type="button">${t("send")}</button></div></section>`;
   document.querySelector("#camera-file").addEventListener("change", (event) => attach(event.target.files[0]));
   document.querySelector("#album-file").addEventListener("change", (event) => attach(event.target.files[0]));
   document.querySelector("#send").addEventListener("click", sendChat);
   for (const item of chatLog) addBubble(item.agent, item.role, item.text);
 }
-async function attach(file) { if (file) { image = await resize(file); document.querySelector("#preview").innerHTML = `<img alt="聊天附件" src="data:image/jpeg;base64,${image.base64}">`; } }
+async function attach(file) { if (file) { image = await resize(file); document.querySelector("#preview").innerHTML = `<img alt="" src="data:image/jpeg;base64,${image.base64}">`; } }
 async function sendChat() {
   const text = document.querySelector("#message").value.trim();
   if (!text && !image) return;
-  addBubble("user", "你", text || "（相片）");
+  addBubble("user", t("you"), text || t("photoOnly"));
   const sent = image;
   image = null;
   document.querySelector("#message").value = "";
   document.querySelector("#preview").innerHTML = "";
-  const data = await ask({ message: text || "請只辨識菜名", image: sent, profile: loadRecord()?.profile, avoid: loadRecord()?.avoid || [] });
+  const data = await ask({ message: text || (lang === "en" ? "Name the dish only" : "請只辨識菜名"), image: sent });
+  if (data.user) me = data.user;
   for (const bubble of data.bubbles || []) addBubble(bubble.agent, bubble.roleName, bubble.text, null, data.trace);
 }
-
 function addBubble(agent, role, text, base64, trace) {
   chatLog.push({ agent, role, text });
   const list = document.querySelector("#log");
@@ -264,40 +334,35 @@ function addBubble(agent, role, text, base64, trace) {
   const item = document.createElement("li");
   item.className = `bubble ${agent === "user" ? "user" : ""}`;
   const steps = (trace || []).filter((step) => step.agent === agent);
-  item.innerHTML = `<span class="role">${escapeHtml(role || agent)}</span><div>${escapeHtml(text || "")}</div>${base64 ? `<img alt="附件" src="data:image/jpeg;base64,${base64}">` : ""}${steps.length ? `<details><summary>ReAct</summary><pre>${escapeHtml(JSON.stringify(steps, null, 2))}</pre></details>` : ""}`;
+  item.innerHTML = `<span class="role">${escapeHtml(role || agent)}</span><div>${escapeHtml(text || "")}</div>${base64 ? `<img alt="" src="data:image/jpeg;base64,${base64}">` : ""}${steps.length ? `<details><summary>${t("react")}</summary><pre>${escapeHtml(JSON.stringify(steps, null, 2))}</pre></details>` : ""}`;
   list.append(item);
 }
 
-function reminderHtml(record) {
-  if (!showReminder(record)) return "";
-  return `<div class="banner"><p>身體資料大約 30 天未更新。這是一次性提醒，不是醫療追蹤。</p><button id="dismiss-reminder" class="secondary" type="button">知道了</button> <a href="/profile">去更新檔案</a></div>`;
+function reminderHtml() {
+  if (!showReminder(me)) return "";
+  return `<div class="banner"><p>${t("reminder")}</p><button id="dismiss-reminder" class="secondary" type="button">${t("dismiss")}</button> <a href="/profile">${t("updateProfile")}</a></div>`;
 }
-document.addEventListener("click", (event) => {
-  if (event.target?.id !== "dismiss-reminder") return;
-  const record = loadRecord();
-  record.reminderDismissedAt = new Date().toISOString();
-  saveRecord(record);
+async function dismissReminder() {
+  const response = await fetch("/api/reminder", { method: "POST" });
+  if (response.ok) me = (await response.json()).user;
   render();
-});
-
+}
 function renderTrace(data) {
   const host = document.querySelector("#trace");
   if (!host) return;
-  host.innerHTML = (data.trace || []).map((step) => `<details open><summary>${escapeHtml(step.roleName || step.agent)} · ${escapeHtml(step.action?.tool || "")}</summary><p>${escapeHtml(step.thought || "")}</p><pre>${escapeHtml(JSON.stringify({ input: step.action?.input, observation: step.observation, state: step.state }, null, 2))}</pre></details>`).join("") || "<p>這輪沒有工具呼叫。</p>";
+  host.innerHTML = (data.trace || []).map((step) => `<details open><summary>${escapeHtml(step.roleName || step.agent)} · ${escapeHtml(step.action?.tool || "")}</summary><p>${escapeHtml(step.thought || "")}</p><pre>${escapeHtml(JSON.stringify({ input: step.action?.input, observation: step.observation, state: step.state }, null, 2))}</pre></details>`).join("") || `<p>${t("traceEmpty")}</p>`;
 }
 
 async function ask(body) {
-  const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId: sessionStorage.getItem("meal-session") || "", ...body }) });
-  const data = await response.json();
-  if (data.sessionId) sessionStorage.setItem("meal-session", data.sessionId);
-  return data;
+  const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...body, lang }) });
+  if (response.status === 401) { me = null; go("/login"); return { trace: [], bubbles: [] }; }
+  return response.json();
 }
-
-function clientProfileError(profile) {
-  if ([profile.heightCm, profile.weightKg, profile.age, profile.targetWeightKg].some((value) => !Number.isFinite(value))) return "身高、體重、年齡和目標體重都要填數字。";
-  if (!profile.sex || !profile.activity || !profile.goal) return "請選擇生理性別、活動量和目標類型。";
-  if (!Number.isInteger(profile.trainingDays) || profile.trainingDays < 0 || profile.trainingDays > 7) return "訓練頻率要填 0 到 7 的整天數。";
-  return "";
+async function logout() {
+  await fetch("/api/logout", { method: "POST" });
+  me = null;
+  chatLog = [];
+  go("/login");
 }
 async function resize(file) {
   const bitmap = await createImageBitmap(file);
@@ -314,12 +379,11 @@ async function resize(file) {
 }
 async function openCamera() {
   if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
-    document.querySelector("#confirm").innerHTML = "<p>即時鏡頭需要 HTTPS。請改用拍照或相簿。</p>";
+    document.querySelector("#confirm").innerHTML = `<p>${t("cameraNeedsHttps")}</p>`;
     return;
   }
   stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-  const video = document.querySelector("#video");
-  video.srcObject = stream;
+  document.querySelector("#video").srcObject = stream;
   document.querySelector("#camera-panel").hidden = false;
 }
 function snap() {
@@ -328,20 +392,23 @@ function snap() {
   canvas.width = video.videoWidth || 640;
   canvas.height = video.videoHeight || 480;
   canvas.getContext("2d").drawImage(video, 0, 0);
-  canvas.toBlob(async (blob) => {
-    const bytes = new Uint8Array(await blob.arrayBuffer());
-    let binary = "";
-    for (const byte of bytes) binary += String.fromCharCode(byte);
-    image = { base64: btoa(binary), mime: "image/jpeg" };
-    document.querySelector("#preview").innerHTML = `<img alt="餐點相片" src="data:image/jpeg;base64,${image.base64}">`;
-    useFile(new File([blob], "camera.jpg", { type: "image/jpeg" }));
-  }, "image/jpeg", 0.85);
+  canvas.toBlob((blob) => useFile(new File([blob], "camera.jpg", { type: "image/jpeg" })), "image/jpeg", 0.85);
 }
 function escapeHtml(value) { return String(value ?? "").replace(/[&<>"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[char])); }
-function escapeAttr(value) { return escapeHtml(value).replace(/"/g, "&quot;"); }
+function escapeAttr(value) { return escapeHtml(value); }
 
-fetch("/api/meta").then((response) => response.json()).then((meta) => {
-  const brain = meta.llm?.gemini ? "聊天室控制器可使用 Gemini" : "未設定 GEMINI_API_KEY；聊天室會嘗試本地模型，失敗則改由確定性規劃呼叫同一套工具";
-  document.querySelector("#model-line").textContent = `${brain}。認菜：${meta.recognition?.state || "idle"}。`;
+function modelText() {
+  if (!meta) return "";
+  const brain = meta.llm?.grok ? `${t("modelGrok")} (${meta.llm.grokModel})` : t("modelLocal");
+  return `${brain} · ${t("recognition")}: ${meta.recognition?.state || "idle"}`;
+}
+fetch("/api/meta").then((response) => response.json()).then((payload) => {
+  meta = payload;
+  const line = document.querySelector("#model-line");
+  if (line) line.textContent = modelText();
 }).catch(() => {});
-render();
+
+fetch("/api/me").then(async (response) => {
+  if (response.ok) me = (await response.json()).user;
+  render();
+}).catch(() => render());
