@@ -55,6 +55,11 @@ pre { white-space: pre-wrap; font-size: 0.78rem; }
 #tabbar a.active { background: var(--herb); color: white; }
 #sidebar { display: none; }
 .auth-card { max-width: 920px; margin: 0 auto; }
+.auth-grid { align-items: start; }
+.auth-card .grid { display: grid; grid-template-columns: 1fr; align-items: start; }
+.auth-card .grid > label { flex: none; min-width: 0; }
+.auth-card label:has(#ack) { display: flex; align-items: flex-start; gap: 8px; }
+.auth-card label:has(#ack) input { width: auto; min-height: 18px; padding: 0; flex: none; }
 fieldset { border: 1px dashed var(--line); border-radius: 16px; }
 .error { color: var(--tomato); min-height: 1.2em; }
 @media (max-width: 959px) {
@@ -78,7 +83,7 @@ fieldset { border: 1px dashed var(--line); border-radius: 16px; }
   .home-grid { display: grid; grid-template-columns: 1.25fr 1fr 0.9fr; gap: 14px; align-items: start; }
   .home-grid .card { margin-bottom: 0; }
   .analyze-layout { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 14px; align-items: start; }
-  .auth-grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 16px; }
+  .auth-grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 16px; align-items: start; }
   body.guest .shell { display: block; }
   body.guest #view { max-width: 980px; margin: 0 auto; }
 }
