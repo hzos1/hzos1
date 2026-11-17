@@ -19,11 +19,8 @@ export function deterministicStep(ctx) {
   if (!memory.pending && parsed.grams != null && parsed.foodQuery && !done.lookup_meal) {
     return { tool: "lookup_meal", agent: "nutrition", thought: "句子裡有菜名和克數，查本地營養表。", input: {} };
   }
-  if (parsed.intents.places && !done.find_places) {
-    return { tool: "find_places", agent: "places", thought: "附近餐廳只查 OpenStreetMap。沒有同意或查不到就直說。", input: {} };
-  }
   if (parsed.intents.plan && memory.needs && !memory.needs.rejected && !done.suggest_meal) {
-    return { tool: "suggest_meal", agent: "nutrition", thought: "從資料表組下一餐，總熱量不得超過剩餘預算的這一餐上限。", input: {} };
+    return { tool: "suggest_meal", agent: "nutrition", thought: "用檔案和資料表組一日餐單。每餐的克數、熱量和營養素只來自已引用的列，不猜餐廳或卡路里。", input: {} };
   }
   if (!done.check_constraints && (done.suggest_meal || (done.lookup_meal && (parsed.intents.calories || parsed.intents.plan)))) {
     return { tool: "check_constraints", agent: "nutrition", thought: "用 WHO 和衞生防護中心的公開原則做約束檢查。", input: {} };

@@ -1,8 +1,7 @@
-import { lookupFood, foodById, nutrientsFor, lookupUsdaLive, proposalForLabel } from "./foods.js";
+import { lookupFood, foodById, nutrientsFor, lookupUsdaLive, proposalForLabel, round1 } from "./foods.js";
 import { estimateNeeds } from "./needs.js";
 import { checkConstraints } from "./health.js";
-import { suggestMeal, verifyPlan } from "./suggest.js";
-import { findPlaces } from "./places.js";
+import { suggestMeal, verifyPlan, annotatePlan } from "./suggest.js";
 import { trainingGuidance } from "./training.js";
 import { recompute } from "./memory.js";
 import { recognizeDish } from "./recognize.js";
@@ -83,7 +82,7 @@ export async function executeTool(tool, input, ctx) {
     if (!memory.needs || memory.needs.rejected || memory.remainingKcal == null) {
       return { ok: false, reason: "還沒有可用的熱量預算。", items: [] };
     }
-    const cap = Math.min(memory.remainingKcal, Math.round(memory.needs.targetKcal * 0.4 * 10) / 10);
+    const cap = memory.remainingKcal;
     const sodiumTight = Boolean(memory.eaten.sodiumKnown && memory.eaten.sodiumMg >= 2000);
     const suggestion = suggestMeal({
       budgetKcal: cap,
@@ -92,9 +91,25 @@ export async function executeTool(tool, input, ctx) {
       sodiumTight,
       needProduce: memory.eaten.produceG < 400,
       needProtein: memory.profile?.goal === "gain",
+      profile: memory.profile,
     });
     const verified = verifyPlan(suggestion, memory.avoid);
-    memory.plan = { ...suggestion, ...verified, capKcal: cap, passedChecks: false };
+    const annotated = annotatePlan({ ...suggestion, ...verified }, memory.profile, memory.avoid);
+    const together = round1((memory.eaten.kcal || 0) + (annotated.totalKcal || 0));
+    const delta = round1(together - memory.needs.targetKcal);
+    memory.plan = {
+      ...annotated,
+      capKcal: cap,
+      eatenKcal: memory.eaten.kcal,
+      togetherKcal: together,
+      deltaKcal: delta,
+      targetKcal: memory.needs.targetKcal,
+      tdeeKcal: memory.needs.tdeeKcal,
+      adjustmentKcal: memory.needs.adjustmentKcal,
+      comparison: `已記錄 ${memory.eaten.kcal} kcal。這份餐單 ${annotated.totalKcal} kcal，蛋白質 ${annotated.proteinG} g、碳水 ${annotated.carbohydrateG} g、脂肪 ${annotated.fatG} g。合計 ${together} kcal，對課堂目標 ${memory.needs.targetKcal} kcal（TDEE ${memory.needs.tdeeKcal}，調整 ${memory.needs.adjustmentKcal}）相差 ${delta} kcal。數字只來自資料列。`,
+      comparisonEn: `Logged intake is ${memory.eaten.kcal} kcal. This plan is ${annotated.totalKcal} kcal, protein ${annotated.proteinG} g, carbohydrate ${annotated.carbohydrateG} g, fat ${annotated.fatG} g. Together ${together} kcal, which is ${delta} kcal versus the classroom target ${memory.needs.targetKcal} kcal (TDEE ${memory.needs.tdeeKcal}, adjustment ${memory.needs.adjustmentKcal}). Numbers come only from cited rows.`,
+      passedChecks: false,
+    };
     return memory.plan;
   }
   if (tool === "check_constraints") {
@@ -106,11 +121,6 @@ export async function executeTool(tool, input, ctx) {
     if (memory.plan) memory.plan.passedChecks = result.planPassed && memory.plan.totalKcal <= (memory.remainingKcal ?? 0) + 0.05;
     memory.checks = result;
     recompute(memory);
-    return result;
-  }
-  if (tool === "find_places") {
-    const result = await findPlaces({ ...input, consent: input.consent === true }, ctx.fetchImpl);
-    memory.places = result;
     return result;
   }
   return { ok: false, error: "unknown-tool" };

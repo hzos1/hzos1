@@ -18,7 +18,7 @@ loadEnv();
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const publicDir = path.join(root, "public");
-const pages = new Set(["/", "/onboarding", "/login", "/register", "/home", "/analyze", "/plan", "/places", "/more", "/chat", "/profile"]);
+const pages = new Set(["/", "/onboarding", "/login", "/register", "/home", "/analyze", "/plan", "/more", "/chat", "/profile"]);
 const staticFiles = new Set(["/styles.css", "/app.js", "/i18n.js"]);
 const agentSessions = new Map();
 const PORT = Number(process.env.PORT || 8787);

@@ -11,7 +11,6 @@ const PAGES = {
   "/home": "pageHome",
   "/analyze": "pageAnalyze",
   "/plan": "pagePlan",
-  "/places": "pagePlaces",
   "/more": "pageMore",
   "/chat": "pageChat",
   "/profile": "pageProfile",
@@ -91,7 +90,7 @@ function chrome() {
   document.querySelector("#logout").textContent = t("logout");
   document.querySelector("#logout-side").textContent = t("logout");
   for (const button of [document.querySelector("#lang-toggle"), document.querySelector("#lang-side")]) button.textContent = lang === "en" ? "中文" : "EN";
-  const labels = { "/home": "navHome", "/analyze": "navAnalyze", "/plan": "navPlan", "/places": "navPlaces", "/more": "navMore" };
+  const labels = { "/home": "navHome", "/analyze": "navAnalyze", "/plan": "navPlan", "/chat": "navChat", "/more": "navMore" };
   for (const link of document.querySelectorAll("#tabbar a, #side-nav a")) link.textContent = t(labels[link.dataset.path]);
   document.querySelector("#model-line").textContent = modelText();
 }
@@ -110,12 +109,12 @@ function render() {
   document.querySelector("#logout").hidden = guest;
   title.textContent = t(PAGES[path] || "brand");
   for (const link of document.querySelectorAll("#tabbar a, #side-nav a")) {
-    const more = (path === "/chat" || path === "/profile") && link.dataset.path === "/more";
+    const more = path === "/profile" && link.dataset.path === "/more";
     link.classList.toggle("active", link.dataset.path === path || more);
   }
   chrome();
   view.innerHTML = "";
-  const page = { "/login": renderLogin, "/register": renderRegister, "/home": renderHome, "/analyze": renderAnalyze, "/plan": renderPlan, "/places": renderPlaces, "/more": renderMore, "/chat": renderChat, "/profile": renderProfile }[path];
+  const page = { "/login": renderLogin, "/register": renderRegister, "/home": renderHome, "/analyze": renderAnalyze, "/plan": renderPlan, "/more": renderMore, "/chat": renderChat, "/profile": renderProfile }[path];
   page();
 }
 
@@ -270,45 +269,56 @@ function bindConfirm() {
 function renderPlan() {
   view.innerHTML = `<section class="card"><h2>${t("pagePlan")}</h2><p>${t("planLead")}</p><button id="make-plan" type="button">${t("planButton")}</button><div id="result"></div></section><section class="card"><h2>${t("homeTrace")}</h2><div id="trace"></div></section>`;
   document.querySelector("#make-plan").addEventListener("click", async () => {
-    const data = await ask({ message: lang === "en" ? "Suggest the next meal and the training days" : "請推薦下一餐，並講訓練次數", brain: "deterministic" });
+    const data = await ask({ message: lang === "en" ? "Build a day meal plan from my profile and the training days" : "請用檔案做一日餐單，並講訓練次數", brain: "deterministic" });
     if (data.user) me = data.user;
     renderTrace(data);
     const plan = data.memory?.plan;
     const training = data.memory?.training;
-    const lines = (plan?.items || []).map((item) => `${item.name} ${item.grams} ${t("grams")}, ${item.nutrients.energyKcal} kcal, ${item.sourceId}`);
     const trainingText = lang === "en" ? `${training?.textEn || ""} ${training?.statedNoteEn || ""}` : `${training?.text || ""} ${training?.statedNote || ""}`;
     const advice = lang === "en" ? (data.memory?.checks?.adviceEn || []) : (data.memory?.checks?.advice || []);
-    const reason = lang === "en" ? (plan?.reasonEn || plan?.reason || "") : (plan?.reason || "");
-    document.querySelector("#result").innerHTML = `<p>${escapeHtml(trainingText)}</p><p>${plan?.passedChecks ? t("planPassed") : t("planFailed")} ${escapeHtml(lines.join("; ") || reason)}</p><p>${escapeHtml(advice.join(" "))}</p>`;
+    const profileLine = lang === "en" ? (plan?.profileLineEn || "") : (plan?.profileLine || "");
+    const comparison = lang === "en" ? (plan?.comparisonEn || plan?.reasonEn || plan?.reason || "") : (plan?.comparison || plan?.reason || "");
+    document.querySelector("#result").innerHTML = `<p>${escapeHtml(trainingText)}</p><p>${plan?.passedChecks ? t("planPassed") : t("planFailed")}</p><p>${escapeHtml(profileLine)}</p>${mealBlocks(plan)}<p>${escapeHtml(comparison)}</p><p>${escapeHtml(advice.join(" "))}</p>`;
   });
 }
-
-function renderPlaces() {
-  view.innerHTML = `<section class="card"><h2>${t("pagePlaces")}</h2><p>${t("placesLead")}</p><div class="actions"><button id="gps" type="button">${t("gps")}</button></div><div class="grid">${field(t("area"), `<input id="area" placeholder="${escapeAttr(t("areaPlaceholder"))}">`)}</div><button id="area-go" class="secondary" type="button">${t("areaGo")}</button><div id="result"></div></section><section class="card"><h2>${t("homeTrace")}</h2><div id="trace"></div></section>`;
-  document.querySelector("#gps").addEventListener("click", () => {
-    navigator.geolocation.getCurrentPosition(async (position) => {
-      showPlaces(await ask({ message: lang === "en" ? "nearby restaurants" : "附近餐廳", location: { consent: true, lat: position.coords.latitude, lon: position.coords.longitude }, brain: "deterministic" }));
-    }, () => { document.querySelector("#result").textContent = t("locationDenied"); });
-  });
-  document.querySelector("#area-go").addEventListener("click", async () => {
-    const area = document.querySelector("#area").value.trim();
-    showPlaces(await ask({ message: `${lang === "en" ? "nearby restaurants area:" : "附近餐廳 地區："}${area}`, location: { consent: true, area }, brain: "deterministic" }));
-  });
-}
-function showPlaces(data) {
-  if (data.user) me = data.user;
-  renderTrace(data);
-  const places = data.memory?.places;
-  const reason = lang === "en" ? (places?.reasonEn || places?.reason) : places?.reason;
-  if (!places?.ok) { document.querySelector("#result").textContent = reason || t("placesEmpty"); return; }
-  document.querySelector("#result").innerHTML = `<p>${escapeHtml(reason || "")}</p>` + (places.places || []).map((place) => `<p><a href="${escapeAttr(place.url)}">${escapeHtml(place.name)}</a>${place.cuisine ? ` · ${escapeHtml(place.cuisine)}` : ""}</p>`).join("") + `<p>${t("notMenu")}</p>`;
+function mealBlocks(plan) {
+  const meals = plan?.meals || [];
+  if (!meals.length) {
+    const lines = (plan?.items || []).map((item) => `${lang === "en" ? (item.nameEn || item.name) : item.name} ${item.grams} ${t("grams")}, ${item.nutrients?.energyKcal} kcal, ${item.sourceId}`);
+    return lines.length ? `<p>${escapeHtml(lines.join("; "))}</p>` : "";
+  }
+  return meals.map((meal) => {
+    const title = lang === "en" ? meal.en : meal.zh;
+    const foods = (meal.items || []).map((item) => {
+      const name = lang === "en" ? (item.nameEn || item.name) : item.name;
+      const row = item.nutrients || {};
+      return `<li>${escapeHtml(name)} ${item.grams} ${t("grams")} · ${row.energyKcal} kcal · ${t("protein")} ${row.proteinG} g · ${t("carb")} ${row.carbohydrateG} g · ${t("fat")} ${row.fatG} g · ${t("source")} ${escapeHtml(item.sourceId || "")}</li>`;
+    }).join("");
+    const reason = lang === "en" ? meal.reasonEn : meal.reason;
+    const prep = lang === "en" ? meal.prepEn : meal.prep;
+    const swap = lang === "en" ? meal.swapEn : meal.swap;
+    return `<article class="meal-block"><h3>${escapeHtml(title || "")} · ${meal.totalKcal} kcal</h3><ul>${foods}</ul><p>${escapeHtml(reason || "")}</p><p>${escapeHtml(prep || "")}</p><p>${escapeHtml(swap || "")}</p></article>`;
+  }).join("");
 }
 
 function renderMore() {
-  view.innerHTML = `<section class="links"><a href="/chat"><strong>${t("moreChat")}</strong><br>${t("moreChatNote")}</a><a href="/profile"><strong>${t("moreProfile")}</strong><br>${t("moreProfileNote")}</a></section>`;
+  view.innerHTML = `<section class="links"><a href="/profile"><strong>${t("moreProfile")}</strong><br>${t("moreProfileNote")}</a></section>`;
+}
+function improvePrompt(text) {
+  const body = text.trim() || (lang === "en" ? "plan today from my saved profile" : "用已儲存的檔案安排今天");
+  if (lang === "en") return `Goal: ${body}. Plan the steps, call a named tool (estimate_needs, lookup_meal, suggest_meal, check_constraints, or training_guidance), show the reasoning in the trace, and do not look up calories until the dish name and grams are confirmed. Do not guess energy.`;
+  return `目標：${body}。先寫計劃，再呼叫具名工具（estimate_needs、lookup_meal、suggest_meal、check_constraints 或 training_guidance），在軌跡顯示推理，菜名和克數未確認前不要查卡路里。不要猜熱量。`;
 }
 function renderChat() {
-  view.innerHTML = `<section class="card"><p>${t("chatLead")}</p><ol id="log"></ol><div id="preview" class="preview"></div><textarea id="message" placeholder="${escapeAttr(t("chatPlaceholder"))}"></textarea><div class="actions"><label class="file">${t("camera")}<input id="camera-file" type="file" accept="image/*" capture="environment"></label><label class="file">${t("album")}<input id="album-file" type="file" accept="image/*"></label><button id="send" type="button">${t("send")}</button></div></section>`;
+  const chips = ["chipGoal", "chipTool", "chipTrace", "chipConfirm"].map((key) => `<button class="secondary chip" type="button" data-chip="${key}">${t(key)}</button>`).join("");
+  view.innerHTML = `<section class="card"><p>${t("chatLead")}</p><p class="meta">${t("chatHint")}</p><div class="chips">${chips}<button id="improve" class="secondary" type="button">${t("improvePrompt")}</button></div><ol id="log"></ol><div id="preview" class="preview"></div><textarea id="message" placeholder="${escapeAttr(t("chatPlaceholder"))}"></textarea><div class="actions"><label class="file">${t("camera")}<input id="camera-file" type="file" accept="image/*" capture="environment"></label><label class="file">${t("album")}<input id="album-file" type="file" accept="image/*"></label><button id="send" type="button">${t("send")}</button></div></section>`;
+  for (const button of document.querySelectorAll("[data-chip]")) {
+    button.addEventListener("click", () => { document.querySelector("#message").value = t(`${button.dataset.chip}Text`); });
+  }
+  document.querySelector("#improve").addEventListener("click", () => {
+    const box = document.querySelector("#message");
+    box.value = improvePrompt(box.value);
+  });
   document.querySelector("#camera-file").addEventListener("change", (event) => attach(event.target.files[0]));
   document.querySelector("#album-file").addEventListener("change", (event) => attach(event.target.files[0]));
   document.querySelector("#send").addEventListener("click", sendChat);

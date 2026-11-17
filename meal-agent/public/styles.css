@@ -40,13 +40,18 @@ button, .file { min-height: 48px; border: 0; border-radius: 14px; padding: 0 16p
 .preview img, video { width: 100%; max-height: 280px; object-fit: cover; border-radius: 16px; background: #1c2420; }
 #log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .bubble { padding: 12px; border-radius: 16px; border: 1px solid var(--line); background: white; }
+.bubble div { white-space: pre-wrap; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+.meal-block { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 10px; }
+.meal-block h3 { margin: 0 0 8px; font-size: 1rem; }
+.meal-block ul { margin: 0 0 8px; padding-left: 18px; }
 .bubble.user { background: var(--herb); color: white; }
 .role { display: inline-block; margin-bottom: 4px; padding: 2px 8px; border-radius: 999px; background: #e7f0ea; color: var(--herb); font-size: 0.85rem; }
 pre { white-space: pre-wrap; font-size: 0.78rem; }
 .links { display: grid; gap: 12px; }
 .links a { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; text-decoration: none; color: var(--ink); }
 #tabbar { position: fixed; left: 8px; right: 8px; bottom: 8px; display: flex; gap: 4px; padding: 6px; background: white; border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
-#tabbar a { flex: 1; min-height: 52px; display: grid; place-items: center; text-decoration: none; color: var(--ink); border-radius: 12px; }
+#tabbar a { flex: 1; min-height: 52px; display: grid; place-items: center; text-align: center; padding: 4px; font-size: 0.82rem; text-decoration: none; color: var(--ink); border-radius: 12px; }
 #tabbar a.active { background: var(--herb); color: white; }
 #sidebar { display: none; }
 .auth-card { max-width: 920px; margin: 0 auto; }

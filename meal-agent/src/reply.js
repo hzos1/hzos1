@@ -1,6 +1,6 @@
 const NAMES = {
-  zh: { controller: "控制器", nutrition: "營養 agent", training: "訓練 agent", places: "餐廳 agent" },
-  en: { controller: "Controller", nutrition: "Nutrition agent", training: "Training agent", places: "Places agent" },
+  zh: { controller: "控制器", nutrition: "營養 agent", training: "訓練 agent" },
+  en: { controller: "Controller", nutrition: "Nutrition agent", training: "Training agent" },
 };
 
 export function agentName(id, lang = "zh") {
@@ -58,12 +58,27 @@ export function observationText(tool, result, lang = "zh") {
   if (tool === "training_guidance") return `${textOf(result, lang, "text", "textEn")} ${textOf(result, lang, "statedNote", "statedNoteEn")} ${textOf(result, lang, "muscleNote", "muscleNoteEn")}`.trim();
   if (tool === "suggest_meal") {
     if (!result.items?.length) return textOf(result, lang, "reason", "reasonEn") || (en ? "No dish to suggest." : "沒有可推薦的菜式。");
+    if (result.meals?.length) {
+      const blocks = result.meals.map((meal) => {
+        const foods = (meal.items || []).map((item) => en
+          ? `${item.nameEn || item.name} ${item.grams} g, ${item.nutrients.energyKcal} kcal, protein ${item.nutrients.proteinG} g, carbohydrate ${item.nutrients.carbohydrateG} g, fat ${item.nutrients.fatG} g, source ${item.sourceId}`
+          : `${item.name} ${item.grams} 克，${item.nutrients.energyKcal} kcal，蛋白質 ${item.nutrients.proteinG} g，碳水 ${item.nutrients.carbohydrateG} g，脂肪 ${item.nutrients.fatG} g，來源 ${item.sourceId}`);
+        const title = en ? meal.en : meal.zh;
+        const reason = en ? meal.reasonEn : meal.reason;
+        const prep = en ? meal.prepEn : meal.prep;
+        const swap = en ? meal.swapEn : meal.swap;
+        return `${title} (${meal.totalKcal} kcal)\n${foods.join("\n")}\n${reason || ""}\n${prep || ""}\n${swap || ""}`;
+      });
+      const head = en ? (result.profileLineEn || "") : (result.profileLine || "");
+      const compare = en ? (result.comparisonEn || "") : (result.comparison || "");
+      return [head, ...blocks, compare].filter(Boolean).join("\n");
+    }
     const lines = result.items.map((item) => en
       ? `${item.name} ${item.grams} g, ${item.nutrients.energyKcal} kcal, ${item.sourceId}, ${item.portionLabel}`
       : `${item.name} ${item.grams} 克，${item.nutrients.energyKcal} kcal，${item.sourceId}，${item.portionLabel}`);
     return en
-      ? `Next meal totals ${result.totalKcal} kcal, cap ${result.capKcal} kcal. ${lines.join("; ")}. This is not a restaurant menu.`
-      : `下一餐建議合計 ${result.totalKcal} kcal，上限 ${result.capKcal} kcal。${lines.join("；")}。這不是餐廳菜單。`;
+      ? `Plan total ${result.totalKcal} kcal. ${lines.join("; ")}. Numbers come from cited rows.`
+      : `餐單合計 ${result.totalKcal} kcal。${lines.join("；")}。數字來自資料列。`;
   }
   if (tool === "check_constraints") {
     const advice = en ? (result.adviceEn || result.advice || []) : (result.advice || []);
@@ -71,12 +86,6 @@ export function observationText(tool, result, lang = "zh") {
       ? (en ? "The meal passed the budget and avoid-list checks." : "餐單通過預算和忌口檢查。")
       : (en ? "The meal has not passed the checks, so it is not treated as done." : "餐單尚未通過檢查，不會把它當成完成。");
     return `${head} ${advice.join("")}`.trim();
-  }
-  if (tool === "find_places") {
-    if (!result.ok) return textOf(result, lang, "reason", "reasonEn");
-    const names = result.places.map((place) => `${place.name}${place.cuisine ? ` (cuisine: ${place.cuisine})` : ""} ${place.url}`).join(en ? "; " : "；");
-    const tail = en ? "No calories or menus were filled in for these places." : "沒有為這些店填卡路里或菜單。";
-    return `${textOf(result, lang, "reason", "reasonEn")} ${names}. ${tail}`.trim();
   }
   if (tool === "save_profile") {
     return result.complete
@@ -94,6 +103,5 @@ export function askForMissing(memory, parsed, lang = "zh") {
       ? "To calculate a daily budget, the saved profile needs weight kg, height cm, age, sex, activity, goal, and target weight."
       : "要計每日預算，請在對話提供：體重 kg、身高 cm、年齡、男或女、活動量（少動／中度／高活動）、目標（減脂／增肌／維持）和目標體重。";
   }
-  if (parsed.intents.places && !memory.places?.ok) return en ? "Before a nearby search, allow location or type an area, for example: nearby area: Kowloon Tong." : "查附近餐廳前，請允許定位，或輸入地區，例如：附近 地區：九龍塘。";
   return "";
 }

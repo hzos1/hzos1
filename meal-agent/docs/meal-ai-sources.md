@@ -150,4 +150,4 @@ TDEE = BMR × PAL。1.50、1.75、2.10 是各檔範圍內的代表值，方便�
 
 ## 7. 實作時採用的頁面（2026-11-17）
 
-上面第 5 節的食譜是資料來源，不是最後的畫面。示範是同一個網站：手機用底部選單，電腦用側欄，功能相同。聊天室不是預設入口。註冊在 `/register`，登入在 `/login`，完成後到 `/home`。其他路由是 `/analyze`、`/plan`、`/places`、`/more`、`/chat`、`/profile`。每頁的動作都走同一套工具迴圈，並顯示 thought / action / observation。雲端模型是 Grok。設定方式：PowerShell 執行 `$env:XAI_API_KEY="你的金鑰"`，或在 `meal-agent/.env` 寫 `XAI_API_KEY=你的金鑰`（該檔已 gitignore），然後重新 `npm start`。不要把金鑰寫進倉庫。這份筆記前文說「不必實作完整軌跡」只描述食譜；本示範有做軌跡。沒有把這份筆記改寫成可繳交的報告正文。
+上面第 5 節的食譜是資料來源，不是最後的畫面。示範是同一個網站：手機用底部選單，電腦用側欄，功能相同。聊天室不是預設入口。註冊在 `/register`，登入在 `/login`，完成後到 `/home`。其他路由是 `/analyze`、`/plan`、`/chat`、`/more`、`/profile`。聊天室在主選單，檔案頁在「更多」下面。每頁的動作都走同一套工具迴圈，並顯示 thought / action / observation。雲端模型是 Grok。設定方式：PowerShell 執行 `$env:XAI_API_KEY="你的金鑰"`，或在 `meal-agent/.env` 寫 `XAI_API_KEY=你的金鑰`（該檔已 gitignore），然後重新 `npm start`。不要把金鑰寫進倉庫。這份筆記前文說「不必實作完整軌跡」只描述食譜；本示範有做軌跡。沒有把這份筆記改寫成可繳交的報告正文。

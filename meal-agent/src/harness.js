@@ -7,7 +7,6 @@ export const TOOLS = {
   check_constraints: { agent: "nutrition", network: false, writes: ["checks"] },
   suggest_meal: { agent: "nutrition", network: false, writes: ["plan"] },
   training_guidance: { agent: "training", network: false, writes: ["training"] },
-  find_places: { agent: "places", network: "openstreetmap-only", writes: ["places"] },
   save_profile: { agent: "controller", network: false, writes: ["profile"] },
 };
 
@@ -18,7 +17,6 @@ const SCHEMAS = {
   check_constraints: { required: [], properties: {}, forbidden: [] },
   suggest_meal: { required: [], properties: {}, forbidden: ["items", "calories"] },
   training_guidance: { required: [], properties: {}, forbidden: ["sets", "reps"] },
-  find_places: { required: [], properties: { area: { type: "string" } }, forbidden: ["menu", "energyKcal", "calories"] },
   save_profile: { required: [], properties: { weightKg: { type: "number" }, heightCm: { type: "number" }, age: { type: "number" }, sex: { type: "string" }, activity: { type: "string" }, goal: { type: "string" }, targetWeightKg: { type: "number" } }, forbidden: ["targetKcal"] },
 };
 
@@ -51,13 +49,6 @@ export function bindCall(choice, context) {
     const grounded = groundLookup(input, context);
     if (!grounded.ok) return grounded;
     return { ok: true, tool, agent: TOOLS[tool].agent, input: grounded.input };
-  }
-  if (tool === "find_places") {
-    const location = context.location;
-    if (location?.consent === true) {
-      return { ok: true, tool, agent: TOOLS[tool].agent, input: { consent: true, lat: location.lat, lon: location.lon, area: location.area || null } };
-    }
-    return { ok: true, tool, agent: TOOLS[tool].agent, input: { consent: false } };
   }
   if (tool === "save_profile") {
     const fromUser = { ...(context.formProfile || {}), ...(context.parsed?.profile || {}) };
@@ -92,12 +83,11 @@ function groundLookup(input, context) {
 
 export function validateResult(tool, result) {
   if (!result || typeof result !== "object") return { ok: false, errors: ["result-not-object"] };
-  if (tool === "recognize_dish" || tool === "find_places") {
+  if (tool === "recognize_dish") {
     const clone = { ...result };
     delete clone.energyKcal;
     delete clone.calories;
     delete clone.menu;
-    if (tool === "find_places") clone.menuCalories = null;
     return { ok: true, result: clone };
   }
   if (tool === "lookup_meal" && result.ok) {

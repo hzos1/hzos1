@@ -14,7 +14,6 @@ export function createMemory() {
     intakeComplete: true,
     plan: null,
     checks: null,
-    places: null,
     training: null,
     pending: null,
     warnings: [],

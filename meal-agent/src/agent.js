@@ -66,7 +66,6 @@ export async function runTurn({ memory, message = "", image = null, location = n
   const parsed = parseMessage(message);
   if (Array.isArray(avoid)) memory.avoid = avoid;
   if (profile) applySavedProfile(memory, profile);
-  if (!location?.consent && parsed.area) location = { consent: true, area: parsed.area };
   const done = {};
   const trace = [];
   const safety = ["no-order", "numbers-from-tools", "disclaimer"];
