@@ -1,0 +1,354 @@
+{
+  "generatedAt": "2026-11-17",
+  "note": "Name accuracy is alias resolution against the cited table, not a photo test and not a clinical study. Calorie error is only computed where a labeled row exists. Missing dishes contribute to coverage, not to MAE.",
+  "counts": {
+    "cases": 29,
+    "comparable": 23,
+    "missingExpected": 5
+  },
+  "nameAccuracy": 0.9655172413793104,
+  "calorieMae": 0,
+  "calorieMape": 0,
+  "budgetChecks": [
+    {
+      "budget": 180,
+      "totalKcal": 176,
+      "exceeded": false,
+      "items": 2
+    },
+    {
+      "budget": 450,
+      "totalKcal": 449.7,
+      "exceeded": false,
+      "items": 3
+    },
+    {
+      "budget": 700,
+      "totalKcal": 520.9,
+      "exceeded": false,
+      "items": 3
+    }
+  ],
+  "planExceededAfterLoggedRice": false,
+  "rows": [
+    {
+      "name": "白飯",
+      "grams": 200,
+      "expectedId": "tw:A0550601",
+      "predictedId": "tw:A0550601",
+      "nameCorrect": true,
+      "predictedKcal": 366,
+      "truthKcal": 366,
+      "sodiumPredicted": 4,
+      "missingExpected": false
+    },
+    {
+      "name": "白米飯",
+      "grams": 150,
+      "expectedId": "tw:A0550601",
+      "predictedId": "tw:A0550601",
+      "nameCorrect": true,
+      "predictedKcal": 274.5,
+      "truthKcal": 274.5,
+      "sodiumPredicted": 3,
+      "missingExpected": false
+    },
+    {
+      "name": "雞胸肉",
+      "grams": 120,
+      "expectedId": "tw:I0402102",
+      "predictedId": "tw:I0402102",
+      "nameCorrect": true,
+      "predictedKcal": 127.2,
+      "truthKcal": 127.2,
+      "sodiumPredicted": 52.8,
+      "missingExpected": false
+    },
+    {
+      "name": "水煮蛋",
+      "grams": 50,
+      "expectedId": "tw:K0111101",
+      "predictedId": "tw:K0111101",
+      "nameCorrect": true,
+      "predictedKcal": 72,
+      "truthKcal": 72,
+      "sodiumPredicted": 62,
+      "missingExpected": false
+    },
+    {
+      "name": "傳統豆腐",
+      "grams": 150,
+      "expectedId": "tw:R4700901",
+      "predictedId": "tw:R4700901",
+      "nameCorrect": true,
+      "predictedKcal": 132,
+      "truthKcal": 132,
+      "sodiumPredicted": 3,
+      "missingExpected": false
+    },
+    {
+      "name": "青江菜",
+      "grams": 100,
+      "expectedId": "tw:E3201201",
+      "predictedId": "tw:E3201201",
+      "nameCorrect": true,
+      "predictedKcal": 10,
+      "truthKcal": 10,
+      "sodiumPredicted": 73,
+      "missingExpected": false
+    },
+    {
+      "name": "叉燒",
+      "grams": 80,
+      "expectedId": "tw:R5100101",
+      "predictedId": "tw:R5100101",
+      "nameCorrect": true,
+      "predictedKcal": 202.4,
+      "truthKcal": 202.4,
+      "sodiumPredicted": 672.8,
+      "missingExpected": false
+    },
+    {
+      "name": "全脂鮮乳",
+      "grams": 240,
+      "expectedId": "tw:L0102101",
+      "predictedId": "tw:L0102101",
+      "nameCorrect": true,
+      "predictedKcal": 148.8,
+      "truthKcal": 148.8,
+      "sodiumPredicted": 96,
+      "missingExpected": false
+    },
+    {
+      "name": "牛番茄",
+      "grams": 169,
+      "expectedId": "tw:E7400101",
+      "predictedId": "tw:E7400101",
+      "nameCorrect": true,
+      "predictedKcal": 32.1,
+      "truthKcal": 32.1,
+      "sodiumPredicted": 3.4,
+      "missingExpected": false
+    },
+    {
+      "name": "菠菜",
+      "grams": 80,
+      "expectedId": "tw:E5000101",
+      "predictedId": "tw:E5000101",
+      "nameCorrect": true,
+      "predictedKcal": 14.4,
+      "truthKcal": 14.4,
+      "sodiumPredicted": 34.4,
+      "missingExpected": false
+    },
+    {
+      "name": "花椰菜",
+      "grams": 100,
+      "expectedId": "tw:E5800101",
+      "predictedId": "tw:E5800101",
+      "nameCorrect": true,
+      "predictedKcal": 23,
+      "truthKcal": 23,
+      "sodiumPredicted": 14,
+      "missingExpected": false
+    },
+    {
+      "name": "芥藍",
+      "grams": 100,
+      "expectedId": "tw:E3900101",
+      "predictedId": "tw:E3900101",
+      "nameCorrect": true,
+      "predictedKcal": 20,
+      "truthKcal": 20,
+      "sodiumPredicted": 27,
+      "missingExpected": false
+    },
+    {
+      "name": "胡蘿蔔",
+      "grams": 80,
+      "expectedId": "tw:E0200101",
+      "predictedId": "tw:E0200101",
+      "nameCorrect": true,
+      "predictedKcal": 29.6,
+      "truthKcal": 29.6,
+      "sodiumPredicted": 53.6,
+      "missingExpected": false
+    },
+    {
+      "name": "香蕉",
+      "grams": 100,
+      "expectedId": "tw:D0800401",
+      "predictedId": "tw:D0800401",
+      "nameCorrect": true,
+      "predictedKcal": 84,
+      "truthKcal": 84,
+      "sodiumPredicted": 0,
+      "missingExpected": false
+    },
+    {
+      "name": "富士蘋果",
+      "grams": 150,
+      "expectedId": "tw:D3200404",
+      "predictedId": "tw:D3200404",
+      "nameCorrect": true,
+      "predictedKcal": 73.5,
+      "truthKcal": 73.5,
+      "sodiumPredicted": 4.5,
+      "missingExpected": false
+    },
+    {
+      "name": "廣東粥",
+      "grams": 300,
+      "expectedId": "tw:R0100101",
+      "predictedId": "tw:R0100101",
+      "nameCorrect": true,
+      "predictedKcal": 243,
+      "truthKcal": 243,
+      "sodiumPredicted": 813,
+      "missingExpected": false
+    },
+    {
+      "name": "高麗菜水餃",
+      "grams": 150,
+      "expectedId": "tw:R2201501",
+      "predictedId": "tw:R2201501",
+      "nameCorrect": true,
+      "predictedKcal": 298.5,
+      "truthKcal": 298.5,
+      "sodiumPredicted": 451.5,
+      "missingExpected": false
+    },
+    {
+      "name": "鮮奶茶",
+      "grams": 234,
+      "expectedId": "tw:O0701501",
+      "predictedId": "tw:O0701501",
+      "nameCorrect": true,
+      "predictedKcal": 63.2,
+      "truthKcal": 63.2,
+      "sodiumPredicted": 28.1,
+      "missingExpected": false
+    },
+    {
+      "name": "珍珠奶茶",
+      "grams": 251,
+      "expectedId": "tw:O0702201",
+      "predictedId": "tw:O0702201",
+      "nameCorrect": true,
+      "predictedKcal": 235.9,
+      "truthKcal": 235.9,
+      "sodiumPredicted": null,
+      "missingExpected": false
+    },
+    {
+      "name": "chicken breast",
+      "grams": 100,
+      "expectedId": "usda:171477",
+      "predictedId": "usda:171477",
+      "nameCorrect": true,
+      "predictedKcal": 165,
+      "truthKcal": 165,
+      "sodiumPredicted": 74,
+      "missingExpected": false
+    },
+    {
+      "name": "cooked salmon",
+      "grams": 100,
+      "expectedId": "usda:175168",
+      "predictedId": "usda:175168",
+      "nameCorrect": true,
+      "predictedKcal": 206,
+      "truthKcal": 206,
+      "sodiumPredicted": 61,
+      "missingExpected": false
+    },
+    {
+      "name": "banana",
+      "grams": 118,
+      "expectedId": "usda:173944",
+      "predictedId": "",
+      "nameCorrect": false,
+      "predictedKcal": null,
+      "truthKcal": 105,
+      "sodiumPredicted": null,
+      "missingExpected": false
+    },
+    {
+      "name": "white rice",
+      "grams": 158,
+      "expectedId": "usda:168878",
+      "predictedId": "usda:168878",
+      "nameCorrect": true,
+      "predictedKcal": 205.4,
+      "truthKcal": 205.4,
+      "sodiumPredicted": 1.6,
+      "missingExpected": false
+    },
+    {
+      "name": "boiled potato",
+      "grams": 100,
+      "expectedId": "usda:170440",
+      "predictedId": "usda:170440",
+      "nameCorrect": true,
+      "predictedKcal": 86,
+      "truthKcal": 86,
+      "sodiumPredicted": 5,
+      "missingExpected": false
+    },
+    {
+      "name": "蛋撻",
+      "grams": 80,
+      "expectedId": "",
+      "predictedId": "",
+      "nameCorrect": true,
+      "predictedKcal": null,
+      "truthKcal": null,
+      "sodiumPredicted": null,
+      "missingExpected": true
+    },
+    {
+      "name": "腸粉",
+      "grams": 200,
+      "expectedId": "",
+      "predictedId": "",
+      "nameCorrect": true,
+      "predictedKcal": null,
+      "truthKcal": null,
+      "sodiumPredicted": null,
+      "missingExpected": true
+    },
+    {
+      "name": "菠蘿包",
+      "grams": 90,
+      "expectedId": "",
+      "predictedId": "",
+      "nameCorrect": true,
+      "predictedKcal": null,
+      "truthKcal": null,
+      "sodiumPredicted": null,
+      "missingExpected": true
+    },
+    {
+      "name": "絲襪奶茶",
+      "grams": 300,
+      "expectedId": "",
+      "predictedId": "",
+      "nameCorrect": true,
+      "predictedKcal": null,
+      "truthKcal": null,
+      "sodiumPredicted": null,
+      "missingExpected": true
+    },
+    {
+      "name": "雲吞麵",
+      "grams": 400,
+      "expectedId": "",
+      "predictedId": "",
+      "nameCorrect": true,
+      "predictedKcal": null,
+      "truthKcal": null,
+      "sodiumPredicted": null,
+      "missingExpected": true
+    }
+  ]
+}

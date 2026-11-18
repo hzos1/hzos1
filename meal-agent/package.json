@@ -1,0 +1,16 @@
+{
+  "name": "meal-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "DSC4070 meal agent with separate pages for registration, home, analysis, plan, chat, and profile.",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/agent.test.js test/auth.test.js",
+    "eval": "node src/eval.js",
+    "build-foods": "python3 scripts/build-food-table.py"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.7.5"
+  }
+}

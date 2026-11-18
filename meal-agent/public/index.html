@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Meal agent</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside id="sidebar" hidden>
+      <a class="brand" href="/home">
+        <strong id="brand-name"></strong>
+        <span id="brand-sub"></span>
+      </a>
+      <nav id="side-nav" class="side-nav">
+        <a href="/home" data-path="/home"></a>
+        <a href="/analyze" data-path="/analyze"></a>
+        <a href="/plan" data-path="/plan"></a>
+        <a href="/chat" data-path="/chat"></a>
+        <a href="/more" data-path="/more"></a>
+      </nav>
+      <div class="side-foot">
+        <button id="lang-side" class="secondary" type="button">EN</button>
+        <button id="logout-side" class="secondary" type="button"></button>
+      </div>
+    </aside>
+    <div class="column">
+      <header class="top">
+        <p id="disclaimer" class="disclaimer"></p>
+        <div class="title-row">
+          <h1 id="title"></h1>
+          <div class="header-actions">
+            <button id="lang-toggle" class="secondary" type="button">EN</button>
+            <button id="logout" class="secondary" type="button" hidden></button>
+          </div>
+        </div>
+        <p id="model-line" class="meta"></p>
+      </header>
+      <main id="view"></main>
+    </div>
+  </div>
+  <nav id="tabbar" hidden>
+    <a href="/home" data-path="/home"></a>
+    <a href="/analyze" data-path="/analyze"></a>
+    <a href="/plan" data-path="/plan"></a>
+    <a href="/chat" data-path="/chat"></a>
+    <a href="/more" data-path="/more"></a>
+  </nav>
+  <script src="/i18n.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,2464 @@
+{
+  "retrieved": "2026-11-17",
+  "note": "Per-100 g values are copied from the named datasets. Blank sodium stays null.",
+  "foods": [
+    {
+      "id": "usda:168878",
+      "source": "usda-sr-legacy",
+      "sourceId": "168878",
+      "name": "Rice, white, long-grain, regular, enriched, cooked",
+      "aliases": [
+        "white rice",
+        "steamed white rice",
+        "cooked white rice"
+      ],
+      "per100g": {
+        "energyKcal": 130.0,
+        "proteinG": 2.69,
+        "fatG": 0.28,
+        "carbohydrateG": 28.17,
+        "sodiumMg": 1.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "grain",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup",
+          "grams": 158.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:169704",
+      "source": "usda-sr-legacy",
+      "sourceId": "169704",
+      "name": "Rice, brown, long-grain, cooked (Includes foods for USDA's Food Distribution Program)",
+      "aliases": [
+        "brown rice",
+        "cooked brown rice"
+      ],
+      "per100g": {
+        "energyKcal": 123.0,
+        "proteinG": 2.74,
+        "fatG": 0.97,
+        "carbohydrateG": 25.58,
+        "sodiumMg": 4.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "grain",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup",
+          "grams": 202.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:171477",
+      "source": "usda-sr-legacy",
+      "sourceId": "171477",
+      "name": "Chicken, broilers or fryers, breast, meat only, cooked, roasted",
+      "aliases": [
+        "chicken breast",
+        "roasted chicken breast"
+      ],
+      "per100g": {
+        "energyKcal": 165.0,
+        "proteinG": 31.02,
+        "fatG": 3.57,
+        "carbohydrateG": 0.0,
+        "sodiumMg": 74.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "poultry"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup, chopped or diced",
+          "grams": 140.0
+        },
+        {
+          "label": "1 unit (yield from 1 lb ready-to-cook chicken)",
+          "grams": 52.0
+        },
+        {
+          "label": "0.5 breast, bone and skin removed",
+          "grams": 86.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:173424",
+      "source": "usda-sr-legacy",
+      "sourceId": "173424",
+      "name": "Egg, whole, cooked, hard-boiled",
+      "aliases": [
+        "hard-boiled egg",
+        "boiled egg"
+      ],
+      "per100g": {
+        "energyKcal": 155.0,
+        "proteinG": 12.58,
+        "fatG": 10.61,
+        "carbohydrateG": 1.12,
+        "sodiumMg": 124.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "egg"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup, chopped",
+          "grams": 136.0
+        },
+        {
+          "label": "1 tbsp",
+          "grams": 8.5
+        },
+        {
+          "label": "1 large",
+          "grams": 50.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:169967",
+      "source": "usda-sr-legacy",
+      "sourceId": "169967",
+      "name": "Broccoli, cooked, boiled, drained, without salt",
+      "aliases": [
+        "cooked broccoli",
+        "broccoli"
+      ],
+      "per100g": {
+        "energyKcal": 35.0,
+        "proteinG": 2.38,
+        "fatG": 0.41,
+        "carbohydrateG": 7.18,
+        "sodiumMg": 41.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "0.5 cup, chopped",
+          "grams": 78.0
+        },
+        {
+          "label": "1 stalk, large (11\"-12\" long)",
+          "grams": 280.0
+        },
+        {
+          "label": "1 stalk, medium (7-1/2\" - 8\" long)",
+          "grams": 180.0
+        },
+        {
+          "label": "1 stalk, small (5\" long)",
+          "grams": 140.0
+        },
+        {
+          "label": "1 spear (about 5\" long)",
+          "grams": 37.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:175168",
+      "source": "usda-sr-legacy",
+      "sourceId": "175168",
+      "name": "Fish, salmon, Atlantic, farmed, cooked, dry heat",
+      "aliases": [
+        "cooked salmon",
+        "salmon"
+      ],
+      "per100g": {
+        "energyKcal": 206.0,
+        "proteinG": 22.1,
+        "fatG": 12.35,
+        "carbohydrateG": 0.0,
+        "sodiumMg": 61.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "seafood"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "3 oz",
+          "grams": 85.0
+        },
+        {
+          "label": "0.5 fillet",
+          "grams": 178.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:173944",
+      "source": "usda-sr-legacy",
+      "sourceId": "173944",
+      "name": "Bananas, raw",
+      "aliases": [
+        "banana"
+      ],
+      "per100g": {
+        "energyKcal": 89.0,
+        "proteinG": 1.09,
+        "fatG": 0.33,
+        "carbohydrateG": 22.84,
+        "sodiumMg": 1.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "fruit",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup, mashed",
+          "grams": 225.0
+        },
+        {
+          "label": "1 cup, sliced",
+          "grams": 150.0
+        },
+        {
+          "label": "1 extra small (less than 6\" long)",
+          "grams": 81.0
+        },
+        {
+          "label": "1 small (6\" to 6-7/8\" long)",
+          "grams": 101.0
+        },
+        {
+          "label": "1 medium (7\" to 7-7/8\" long)",
+          "grams": 118.0
+        },
+        {
+          "label": "1 large (8\" to 8-7/8\" long)",
+          "grams": 136.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:171688",
+      "source": "usda-sr-legacy",
+      "sourceId": "171688",
+      "name": "Apples, raw, with skin (Includes foods for USDA's Food Distribution Program)",
+      "aliases": [
+        "apple",
+        "raw apple"
+      ],
+      "per100g": {
+        "energyKcal": 52.0,
+        "proteinG": 0.26,
+        "fatG": 0.17,
+        "carbohydrateG": 13.81,
+        "sodiumMg": 1.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "fruit",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup, quartered or chopped",
+          "grams": 125.0
+        },
+        {
+          "label": "1 cup slices",
+          "grams": 109.0
+        },
+        {
+          "label": "1 large (3-1/4\" dia)",
+          "grams": 223.0
+        },
+        {
+          "label": "1 medium (3\" dia)",
+          "grams": 182.0
+        },
+        {
+          "label": "1 small (2-3/4\" dia)",
+          "grams": 149.0
+        },
+        {
+          "label": "1 extra small (2-1/2\" dia)",
+          "grams": 101.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:171265",
+      "source": "usda-sr-legacy",
+      "sourceId": "171265",
+      "name": "Milk, whole, 3.25% milkfat, with added vitamin D",
+      "aliases": [
+        "whole milk",
+        "milk"
+      ],
+      "per100g": {
+        "energyKcal": 61.0,
+        "proteinG": 3.15,
+        "fatG": 3.25,
+        "carbohydrateG": 4.8,
+        "sodiumMg": 43.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "dairy",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "dairy"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup",
+          "grams": 244.0
+        },
+        {
+          "label": "1 fl oz",
+          "grams": 30.5
+        },
+        {
+          "label": "1 tbsp",
+          "grams": 15.0
+        },
+        {
+          "label": "1 quart",
+          "grams": 976.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:174924",
+      "source": "usda-sr-legacy",
+      "sourceId": "174924",
+      "name": "Bread, white, commercially prepared (includes soft bread crumbs)",
+      "aliases": [
+        "white bread",
+        "bread"
+      ],
+      "per100g": {
+        "energyKcal": 266.0,
+        "proteinG": 8.85,
+        "fatG": 3.33,
+        "carbohydrateG": 49.42,
+        "sodiumMg": 490.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "grain",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "gluten"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 slice",
+          "grams": 29.0
+        },
+        {
+          "label": "1 oz",
+          "grams": 28.35
+        },
+        {
+          "label": "1 cup, crumbs",
+          "grams": 45.0
+        },
+        {
+          "label": "1 cup, cubes",
+          "grams": 35.0
+        },
+        {
+          "label": "1 slice, large",
+          "grams": 30.0
+        },
+        {
+          "label": "1 slice",
+          "grams": 25.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:172475",
+      "source": "usda-sr-legacy",
+      "sourceId": "172475",
+      "name": "Tofu, raw, firm, prepared with calcium sulfate",
+      "aliases": [
+        "firm tofu",
+        "tofu"
+      ],
+      "per100g": {
+        "energyKcal": 144.0,
+        "proteinG": 17.27,
+        "fatG": 8.72,
+        "carbohydrateG": 2.78,
+        "sodiumMg": 14.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "soy"
+      ],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "0.5 cup",
+          "grams": 126.0
+        },
+        {
+          "label": "0.25 block",
+          "grams": 81.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:168250",
+      "source": "usda-sr-legacy",
+      "sourceId": "168250",
+      "name": "Pork, fresh, loin, tenderloin, separable lean only, cooked, roasted",
+      "aliases": [
+        "pork tenderloin",
+        "roasted pork tenderloin"
+      ],
+      "per100g": {
+        "energyKcal": 143.0,
+        "proteinG": 26.17,
+        "fatG": 3.51,
+        "carbohydrateG": 0.0,
+        "sodiumMg": 57.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "pork"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "3 oz",
+          "grams": 85.0
+        },
+        {
+          "label": "1 piece, cooked, excluding refuse (yield from 1 lb raw meat with refuse)",
+          "grams": 333.0
+        },
+        {
+          "label": "1 roast",
+          "grams": 402.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:174031",
+      "source": "usda-sr-legacy",
+      "sourceId": "174031",
+      "name": "Beef, ground, 90% lean meat / 10% fat, patty, cooked, broiled",
+      "aliases": [
+        "lean ground beef",
+        "ground beef"
+      ],
+      "per100g": {
+        "energyKcal": 217.0,
+        "proteinG": 26.11,
+        "fatG": 11.75,
+        "carbohydrateG": 0.0,
+        "sodiumMg": 68.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "beef"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "3 oz",
+          "grams": 85.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:168634",
+      "source": "usda-sr-legacy",
+      "sourceId": "168634",
+      "name": "Beef, top sirloin, steak, separable lean only, trimmed to 0\" fat, all grades, cooked, broiled",
+      "aliases": [
+        "sirloin steak",
+        "beef sirloin"
+      ],
+      "per100g": {
+        "energyKcal": 183.0,
+        "proteinG": 30.55,
+        "fatG": 5.79,
+        "carbohydrateG": 0.0,
+        "sodiumMg": 64.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "beef"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "3 oz",
+          "grams": 85.0
+        },
+        {
+          "label": "1 piece, cooked, excluding refuse (yield from 1 lb raw meat with refuse)",
+          "grams": 292.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:169737",
+      "source": "usda-sr-legacy",
+      "sourceId": "169737",
+      "name": "Pasta, cooked, enriched, without added salt",
+      "aliases": [
+        "cooked pasta",
+        "pasta"
+      ],
+      "per100g": {
+        "energyKcal": 158.0,
+        "proteinG": 5.8,
+        "fatG": 0.93,
+        "carbohydrateG": 30.86,
+        "sodiumMg": 1.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "grain",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "gluten"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup spaghetti not packed",
+          "grams": 124.0
+        },
+        {
+          "label": "1 cup spaghetti packed",
+          "grams": 151.0
+        },
+        {
+          "label": "1 cup elbows not packed",
+          "grams": 120.0
+        },
+        {
+          "label": "1 cup elbows packed",
+          "grams": 132.0
+        },
+        {
+          "label": "1 cup penne",
+          "grams": 107.0
+        },
+        {
+          "label": "1 cup farfalle",
+          "grams": 107.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:170440",
+      "source": "usda-sr-legacy",
+      "sourceId": "170440",
+      "name": "Potatoes, boiled, cooked without skin, flesh, without salt",
+      "aliases": [
+        "boiled potato",
+        "potato"
+      ],
+      "per100g": {
+        "energyKcal": 86.0,
+        "proteinG": 1.71,
+        "fatG": 0.1,
+        "carbohydrateG": 20.01,
+        "sodiumMg": 5.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "starch",
+      "produce": false,
+      "starchyRoot": true,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "0.5 cup",
+          "grams": 78.0
+        },
+        {
+          "label": "1 large (3\" to 4-1/4\" dia.)",
+          "grams": 300.0
+        },
+        {
+          "label": "1 medium (2-1/4\" to 3-1/4\" dia.)",
+          "grams": 167.0
+        },
+        {
+          "label": "1 small (1-3/4\" to 2-1/2\" dia.)",
+          "grams": 125.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:168463",
+      "source": "usda-sr-legacy",
+      "sourceId": "168463",
+      "name": "Spinach, cooked, boiled, drained, without salt",
+      "aliases": [
+        "cooked spinach",
+        "spinach"
+      ],
+      "per100g": {
+        "energyKcal": 23.0,
+        "proteinG": 2.97,
+        "fatG": 0.26,
+        "carbohydrateG": 3.75,
+        "sodiumMg": 70.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup",
+          "grams": 180.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:170457",
+      "source": "usda-sr-legacy",
+      "sourceId": "170457",
+      "name": "Tomatoes, red, ripe, raw, year round average",
+      "aliases": [
+        "tomato",
+        "raw tomato"
+      ],
+      "per100g": {
+        "energyKcal": 18.0,
+        "proteinG": 0.88,
+        "fatG": 0.2,
+        "carbohydrateG": 3.89,
+        "sodiumMg": 5.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup cherry tomatoes",
+          "grams": 149.0
+        },
+        {
+          "label": "1 cup, chopped or sliced",
+          "grams": 180.0
+        },
+        {
+          "label": "1 Italian tomato",
+          "grams": 62.0
+        },
+        {
+          "label": "1 cherry",
+          "grams": 17.0
+        },
+        {
+          "label": "1 large whole (3\" dia)",
+          "grams": 182.0
+        },
+        {
+          "label": "1 medium whole (2-3/5\" dia)",
+          "grams": 123.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:171284",
+      "source": "usda-sr-legacy",
+      "sourceId": "171284",
+      "name": "Yogurt, plain, whole milk",
+      "aliases": [
+        "plain yogurt",
+        "yogurt"
+      ],
+      "per100g": {
+        "energyKcal": 61.0,
+        "proteinG": 3.47,
+        "fatG": 3.25,
+        "carbohydrateG": 4.66,
+        "sodiumMg": 46.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "dairy",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "dairy"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 container (6 oz)",
+          "grams": 170.0
+        },
+        {
+          "label": "1 container (8 oz)",
+          "grams": 227.0
+        },
+        {
+          "label": "0.5 container (4 oz)",
+          "grams": 113.0
+        },
+        {
+          "label": "1 cup (8 fl oz)",
+          "grams": 245.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:173905",
+      "source": "usda-sr-legacy",
+      "sourceId": "173905",
+      "name": "Cereals, oats, regular and quick, unenriched, cooked with water (includes boiling and microwaving), without salt",
+      "aliases": [
+        "cooked oats",
+        "oatmeal"
+      ],
+      "per100g": {
+        "energyKcal": 71.0,
+        "proteinG": 2.54,
+        "fatG": 1.52,
+        "carbohydrateG": 12.0,
+        "sodiumMg": 4.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "grain",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "gluten"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup",
+          "grams": 234.0
+        },
+        {
+          "label": "1 tbsp",
+          "grams": 14.6
+        },
+        {
+          "label": "0.75 cup",
+          "grams": 175.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:169976",
+      "source": "usda-sr-legacy",
+      "sourceId": "169976",
+      "name": "Cabbage, cooked, boiled, drained, without salt",
+      "aliases": [
+        "cooked cabbage",
+        "cabbage"
+      ],
+      "per100g": {
+        "energyKcal": 23.0,
+        "proteinG": 1.27,
+        "fatG": 0.06,
+        "carbohydrateG": 5.51,
+        "sodiumMg": 8.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "0.5 cup, shredded",
+          "grams": 75.0
+        },
+        {
+          "label": "1 head",
+          "grams": 1262.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:170391",
+      "source": "usda-sr-legacy",
+      "sourceId": "170391",
+      "name": "Cabbage, chinese (pak-choi), cooked, boiled, drained, without salt",
+      "aliases": [
+        "cooked bok choy",
+        "bok choy",
+        "pak choi"
+      ],
+      "per100g": {
+        "energyKcal": 12.0,
+        "proteinG": 1.56,
+        "fatG": 0.16,
+        "carbohydrateG": 1.78,
+        "sodiumMg": 34.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "1 cup, shredded",
+          "grams": 170.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:168572",
+      "source": "usda-sr-legacy",
+      "sourceId": "168572",
+      "name": "Cabbage, napa, cooked",
+      "aliases": [
+        "cooked napa cabbage",
+        "napa cabbage"
+      ],
+      "per100g": {
+        "energyKcal": 12.0,
+        "proteinG": 1.1,
+        "fatG": 0.17,
+        "carbohydrateG": 2.23,
+        "sodiumMg": 11.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "1 cup",
+          "grams": 109.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:170393",
+      "source": "usda-sr-legacy",
+      "sourceId": "170393",
+      "name": "Carrots, raw",
+      "aliases": [
+        "carrot",
+        "raw carrot"
+      ],
+      "per100g": {
+        "energyKcal": 41.0,
+        "proteinG": 0.93,
+        "fatG": 0.24,
+        "carbohydrateG": 9.58,
+        "sodiumMg": 69.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup chopped",
+          "grams": 128.0
+        },
+        {
+          "label": "1 cup grated",
+          "grams": 110.0
+        },
+        {
+          "label": "1 cup strips or slices",
+          "grams": 122.0
+        },
+        {
+          "label": "1 large (7-1/4\" to 8-/1/2\" long)",
+          "grams": 72.0
+        },
+        {
+          "label": "1 medium",
+          "grams": 61.0
+        },
+        {
+          "label": "1 small (5-1/2\" long)",
+          "grams": 50.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:171971",
+      "source": "usda-sr-legacy",
+      "sourceId": "171971",
+      "name": "Crustaceans, shrimp, mixed species, cooked, moist heat (may contain additives to retain moisture)",
+      "aliases": [
+        "cooked shrimp",
+        "shrimp"
+      ],
+      "per100g": {
+        "energyKcal": 119.0,
+        "proteinG": 22.78,
+        "fatG": 1.7,
+        "carbohydrateG": 1.52,
+        "sodiumMg": 947.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "seafood"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "3 oz",
+          "grams": 85.0
+        },
+        {
+          "label": "4 large",
+          "grams": 22.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:173709",
+      "source": "usda-sr-legacy",
+      "sourceId": "173709",
+      "name": "Fish, tuna, light, canned in water, drained solids (Includes foods for USDA's Food Distribution Program)",
+      "aliases": [
+        "canned tuna",
+        "tuna"
+      ],
+      "per100g": {
+        "energyKcal": 86.0,
+        "proteinG": 19.44,
+        "fatG": 0.96,
+        "carbohydrateG": 0.0,
+        "sodiumMg": 247.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "seafood"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 oz",
+          "grams": 28.35
+        },
+        {
+          "label": "3 oz",
+          "grams": 85.0
+        },
+        {
+          "label": "1 can",
+          "grams": 165.0
+        },
+        {
+          "label": "1 cup, solid or chunks",
+          "grams": 154.0
+        },
+        {
+          "label": "1 can (12.5 oz), drained",
+          "grams": 315.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:169097",
+      "source": "usda-sr-legacy",
+      "sourceId": "169097",
+      "name": "Oranges, raw, all commercial varieties",
+      "aliases": [
+        "orange"
+      ],
+      "per100g": {
+        "energyKcal": 47.0,
+        "proteinG": 0.94,
+        "fatG": 0.12,
+        "carbohydrateG": 11.75,
+        "sodiumMg": 0.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "fruit",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup, sections",
+          "grams": 180.0
+        },
+        {
+          "label": "1 large (3-1/16\" dia)",
+          "grams": 184.0
+        },
+        {
+          "label": "1 small (2-3/8\" dia)",
+          "grams": 96.0
+        },
+        {
+          "label": "1 fruit (2-5/8\" dia)",
+          "grams": 131.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:168483",
+      "source": "usda-sr-legacy",
+      "sourceId": "168483",
+      "name": "Sweet potato, cooked, baked in skin, flesh, without salt",
+      "aliases": [
+        "baked sweet potato",
+        "sweet potato"
+      ],
+      "per100g": {
+        "energyKcal": 90.0,
+        "proteinG": 2.01,
+        "fatG": 0.15,
+        "carbohydrateG": 20.71,
+        "sodiumMg": 36.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "starch",
+      "produce": false,
+      "starchyRoot": true,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup",
+          "grams": 200.0
+        },
+        {
+          "label": "1 large",
+          "grams": 180.0
+        },
+        {
+          "label": "1 medium (2\" dia, 5\" long, raw)",
+          "grams": 114.0
+        },
+        {
+          "label": "1 small",
+          "grams": 60.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:168409",
+      "source": "usda-sr-legacy",
+      "sourceId": "168409",
+      "name": "Cucumber, with peel, raw",
+      "aliases": [
+        "cucumber"
+      ],
+      "per100g": {
+        "energyKcal": 15.0,
+        "proteinG": 0.65,
+        "fatG": 0.11,
+        "carbohydrateG": 3.63,
+        "sodiumMg": 2.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "0.5 cup slices",
+          "grams": 52.0
+        },
+        {
+          "label": "1 cucumber (8-1/4\")",
+          "grams": 301.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:169141",
+      "source": "usda-sr-legacy",
+      "sourceId": "169141",
+      "name": "Beans, snap, green, cooked, boiled, drained, without salt",
+      "aliases": [
+        "cooked green beans",
+        "green beans"
+      ],
+      "per100g": {
+        "energyKcal": 35.0,
+        "proteinG": 1.89,
+        "fatG": 0.28,
+        "carbohydrateG": 7.88,
+        "sodiumMg": 1.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 cup",
+          "grams": 125.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:168914",
+      "source": "usda-sr-legacy",
+      "sourceId": "168914",
+      "name": "Rice noodles, cooked",
+      "aliases": [
+        "cooked rice noodles",
+        "rice noodles"
+      ],
+      "per100g": {
+        "energyKcal": 108.0,
+        "proteinG": 1.79,
+        "fatG": 0.2,
+        "carbohydrateG": 24.01,
+        "sodiumMg": 19.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "grain",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "1 cup",
+          "grams": 176.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:167668",
+      "source": "usda-sr-legacy",
+      "sourceId": "167668",
+      "name": "Restaurant, Chinese, fried rice, without meat",
+      "aliases": [
+        "chinese fried rice without meat",
+        "fried rice without meat"
+      ],
+      "per100g": {
+        "energyKcal": 174.0,
+        "proteinG": 4.05,
+        "fatG": 2.96,
+        "carbohydrateG": 32.79,
+        "sodiumMg": 387.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "grain",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "1 cup",
+          "grams": 137.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:171821",
+      "source": "usda-sr-legacy",
+      "sourceId": "171821",
+      "name": "Soup, wonton, Chinese restaurant",
+      "aliases": [
+        "wonton soup"
+      ],
+      "per100g": {
+        "energyKcal": 32.0,
+        "proteinG": 2.08,
+        "fatG": 0.26,
+        "carbohydrateG": 5.25,
+        "sodiumMg": 406.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "mixed",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "1 cup",
+          "grams": 223.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:167667",
+      "source": "usda-sr-legacy",
+      "sourceId": "167667",
+      "name": "Restaurant, Chinese, egg rolls, assorted",
+      "aliases": [
+        "chinese restaurant egg rolls",
+        "egg rolls"
+      ],
+      "per100g": {
+        "energyKcal": 250.0,
+        "proteinG": 8.28,
+        "fatG": 11.94,
+        "carbohydrateG": 27.29,
+        "sodiumMg": 468.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "mixed",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "gluten"
+      ],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "1 piece",
+          "grams": 89.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:170698",
+      "source": "usda-sr-legacy",
+      "sourceId": "170698",
+      "name": "Fast foods, potato, french fried in vegetable oil",
+      "aliases": [
+        "french fries"
+      ],
+      "per100g": {
+        "energyKcal": 312.0,
+        "proteinG": 3.43,
+        "fatG": 14.73,
+        "carbohydrateG": 41.44,
+        "sodiumMg": 210.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "starch",
+      "produce": false,
+      "starchyRoot": true,
+      "avoid": [],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 serving small",
+          "grams": 71.0
+        },
+        {
+          "label": "1 serving medium",
+          "grams": 117.0
+        },
+        {
+          "label": "1 serving large",
+          "grams": 154.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:170317",
+      "source": "usda-sr-legacy",
+      "sourceId": "170317",
+      "name": "Pizza, cheese topping, regular crust, frozen, cooked",
+      "aliases": [
+        "cheese pizza regular crust",
+        "cheese pizza"
+      ],
+      "per100g": {
+        "energyKcal": 268.0,
+        "proteinG": 10.36,
+        "fatG": 12.28,
+        "carbohydrateG": 29.02,
+        "sodiumMg": 447.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "mixed",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "gluten",
+        "dairy"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 serving 9 servings per 24 oz package",
+          "grams": 81.0
+        },
+        {
+          "label": "1 serving 3 servings per 15.1 oz package",
+          "grams": 151.0
+        },
+        {
+          "label": "1 serving 2 servings per 9.8 oz package",
+          "grams": 146.0
+        },
+        {
+          "label": "1 serving 1 serving per 8 oz box",
+          "grams": 199.0
+        },
+        {
+          "label": "1 package 24 oz pizza",
+          "grams": 727.0
+        },
+        {
+          "label": "1 package 15.1 oz pizza",
+          "grams": 452.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:175006",
+      "source": "usda-sr-legacy",
+      "sourceId": "175006",
+      "name": "Pancakes, plain, dry mix, complete, prepared",
+      "aliases": [
+        "prepared pancakes",
+        "pancakes"
+      ],
+      "per100g": {
+        "energyKcal": 194.0,
+        "proteinG": 5.2,
+        "fatG": 2.5,
+        "carbohydrateG": 36.7,
+        "sodiumMg": 628.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "grain",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "gluten",
+        "egg",
+        "dairy"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 oz",
+          "grams": 28.35
+        },
+        {
+          "label": "1 pancake (4\" dia)",
+          "grams": 38.0
+        },
+        {
+          "label": "1 pancake (6\" dia)",
+          "grams": 77.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:175039",
+      "source": "usda-sr-legacy",
+      "sourceId": "175039",
+      "name": "Waffles, plain, prepared from recipe",
+      "aliases": [
+        "waffles prepared from recipe",
+        "waffles"
+      ],
+      "per100g": {
+        "energyKcal": 291.0,
+        "proteinG": 7.9,
+        "fatG": 14.1,
+        "carbohydrateG": 32.9,
+        "sodiumMg": 511.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "grain",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "gluten",
+        "egg",
+        "dairy"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 oz",
+          "grams": 28.35
+        },
+        {
+          "label": "1 waffle, round (7\" dia)",
+          "grams": 75.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:168411",
+      "source": "usda-sr-legacy",
+      "sourceId": "168411",
+      "name": "Edamame, frozen, prepared",
+      "aliases": [
+        "edamame",
+        "prepared edamame"
+      ],
+      "per100g": {
+        "energyKcal": 121.0,
+        "proteinG": 11.91,
+        "fatG": 5.2,
+        "carbohydrateG": 8.91,
+        "sodiumMg": 6.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "soy"
+      ],
+      "cuisine": [
+        "japanese"
+      ],
+      "portions": [
+        {
+          "label": "1 cup",
+          "grams": 155.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:174289",
+      "source": "usda-sr-legacy",
+      "sourceId": "174289",
+      "name": "Hummus, commercial",
+      "aliases": [
+        "hummus"
+      ],
+      "per100g": {
+        "energyKcal": 237.0,
+        "proteinG": 7.78,
+        "fatG": 17.82,
+        "carbohydrateG": 15.0,
+        "sodiumMg": 426.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "sesame"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "1 tbsp",
+          "grams": 15.0
+        },
+        {
+          "label": "1 cup",
+          "grams": 246.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "usda:167882",
+      "source": "usda-sr-legacy",
+      "sourceId": "167882",
+      "name": "Pork, fresh, loin, center loin (chops), bone-in, separable lean only, cooked, pan-fried",
+      "aliases": [
+        "pan-fried pork chop",
+        "pork chop"
+      ],
+      "per100g": {
+        "energyKcal": 195.0,
+        "proteinG": 29.56,
+        "fatG": 7.66,
+        "carbohydrateG": 0.0,
+        "sodiumMg": 99.0
+      },
+      "state": "as described in the SR Legacy food name",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "pork"
+      ],
+      "cuisine": [
+        "western"
+      ],
+      "portions": [
+        {
+          "label": "3 oz",
+          "grams": 85.0
+        },
+        {
+          "label": "1 chop",
+          "grams": 172.0
+        }
+      ],
+      "dataset": "USDA FoodData Central SR Legacy CSV, April 2018 release files",
+      "datasetUrl": "https://fdc.nal.usda.gov/download-datasets/",
+      "license": "CC0 1.0"
+    },
+    {
+      "id": "tw:A0550601",
+      "source": "taiwan-fda",
+      "sourceId": "A0550601",
+      "name": "白飯",
+      "nameEn": "Cooked rice",
+      "aliases": [
+        "白飯",
+        "白米飯"
+      ],
+      "per100g": {
+        "energyKcal": 183.0,
+        "proteinG": 3.1,
+        "fatG": 0.3,
+        "carbohydrateG": 41.0,
+        "sodiumMg": 2.0
+      },
+      "state": "樣品狀態:熟,白米加1.1倍的去離子水,用電鍋烹煮; 前處理描述:混合均勻打碎",
+      "group": "grain",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:R0100101",
+      "source": "taiwan-fda",
+      "sourceId": "R0100101",
+      "name": "廣東粥",
+      "nameEn": "Catonese congee",
+      "aliases": [
+        "廣東粥"
+      ],
+      "per100g": {
+        "energyKcal": 81.0,
+        "proteinG": 4.9,
+        "fatG": 2.8,
+        "carbohydrateG": 9.1,
+        "sodiumMg": 271.0
+      },
+      "state": "前處理描述:混合均勻打碎(花枝,豬肝,油條,蛋等)",
+      "group": "mixed",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "seafood",
+        "pork",
+        "egg",
+        "gluten"
+      ],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:K0111101",
+      "source": "taiwan-fda",
+      "sourceId": "K0111101",
+      "name": "雞水煮蛋",
+      "nameEn": "Hen's egg: hard-boiled",
+      "aliases": [
+        "雞水煮蛋",
+        "水煮蛋"
+      ],
+      "per100g": {
+        "energyKcal": 144.0,
+        "proteinG": 14.0,
+        "fatG": 9.2,
+        "carbohydrateG": 1.7,
+        "sodiumMg": 124.0
+      },
+      "state": "前處理描述:約7L一次水以大火煮25分鐘,水滾後續煮10分鐘,撈出瀝乾均質",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "egg",
+        "poultry"
+      ],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "資料集單位重 55.0克",
+          "grams": 55.0
+        }
+      ],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:R4700901",
+      "source": "taiwan-fda",
+      "sourceId": "R4700901",
+      "name": "傳統豆腐",
+      "nameEn": "Tofu; Bean curd; Soy bean cheese",
+      "aliases": [
+        "傳統豆腐",
+        "豆腐"
+      ],
+      "per100g": {
+        "energyKcal": 88.0,
+        "proteinG": 8.5,
+        "fatG": 3.4,
+        "carbohydrateG": 6.0,
+        "sodiumMg": 2.0
+      },
+      "state": "前處理描述:混合均勻打碎",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "soy"
+      ],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:E3201201",
+      "source": "taiwan-fda",
+      "sourceId": "E3201201",
+      "name": "青江菜(土植)(1月取樣)",
+      "nameEn": "Pak-choi , Chinese mustard",
+      "aliases": [
+        "青江菜"
+      ],
+      "per100g": {
+        "energyKcal": 10.0,
+        "proteinG": 1.3,
+        "fatG": 0.0,
+        "carbohydrateG": 1.6,
+        "sodiumMg": 73.0
+      },
+      "state": "樣品狀態:生; 前處理描述:混合均勻打碎",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:I0402102",
+      "source": "taiwan-fda",
+      "sourceId": "I0402102",
+      "name": "里肌肉(肉雞)",
+      "nameEn": "Chicken: tenderloin, feed",
+      "aliases": [
+        "雞胸肉",
+        "雞胸",
+        "肉雞里肌肉"
+      ],
+      "per100g": {
+        "energyKcal": 106.0,
+        "proteinG": 23.7,
+        "fatG": 0.6,
+        "carbohydrateG": 0.0,
+        "sodiumMg": 44.0
+      },
+      "state": "樣品狀態:生,雞胸部位; 前處理描述:混合均勻打碎",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "poultry"
+      ],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:I0306101",
+      "source": "taiwan-fda",
+      "sourceId": "I0306101",
+      "name": "豬小里肌",
+      "nameEn": "Tenderloin",
+      "aliases": [
+        "豬小里肌",
+        "豬里肌"
+      ],
+      "per100g": {
+        "energyKcal": 139.0,
+        "proteinG": 21.1,
+        "fatG": 5.4,
+        "carbohydrateG": 0.0,
+        "sodiumMg": 46.0
+      },
+      "state": "樣品狀態:生,豬小里肌部位; 前處理描述:混合均勻打碎",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "pork"
+      ],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:R5100101",
+      "source": "taiwan-fda",
+      "sourceId": "R5100101",
+      "name": "叉燒肉",
+      "nameEn": "Basted meat",
+      "aliases": [
+        "叉燒",
+        "叉燒肉"
+      ],
+      "per100g": {
+        "energyKcal": 253.0,
+        "proteinG": 17.2,
+        "fatG": 13.1,
+        "carbohydrateG": 16.5,
+        "sodiumMg": 841.0
+      },
+      "state": "樣品狀態:真空包裝(豬肉,鹽,糖,醬油,紅麴醬,調味料等); 前處理描述:混合均勻打碎",
+      "group": "protein",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "pork"
+      ],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:L0102101",
+      "source": "taiwan-fda",
+      "sourceId": "L0102101",
+      "name": "全脂鮮乳(1月取樣)",
+      "nameEn": "Whole fresh milk",
+      "aliases": [
+        "全脂鮮乳",
+        "鮮乳"
+      ],
+      "per100g": {
+        "energyKcal": 62.0,
+        "proteinG": 2.9,
+        "fatG": 3.6,
+        "carbohydrateG": 4.7,
+        "sodiumMg": 40.0
+      },
+      "state": "樣品狀態:全脂(3.0-3.8%)鮮乳; 前處理描述:混合均勻",
+      "group": "dairy",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "dairy"
+      ],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:E7400101",
+      "source": "taiwan-fda",
+      "sourceId": "E7400101",
+      "name": "牛番茄",
+      "nameEn": "Tomato",
+      "aliases": [
+        "牛番茄",
+        "番茄"
+      ],
+      "per100g": {
+        "energyKcal": 19.0,
+        "proteinG": 0.7,
+        "fatG": 0.1,
+        "carbohydrateG": 4.0,
+        "sodiumMg": 2.0
+      },
+      "state": "樣品狀態:生,紅色系大果; 前處理描述:去蒂,混合均勻打碎",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "資料集單位重 169.0克",
+          "grams": 169.0
+        }
+      ],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:E5000101",
+      "source": "taiwan-fda",
+      "sourceId": "E5000101",
+      "name": "菠菜",
+      "nameEn": "Spinach",
+      "aliases": [
+        "菠菜"
+      ],
+      "per100g": {
+        "energyKcal": 18.0,
+        "proteinG": 2.2,
+        "fatG": 0.3,
+        "carbohydrateG": 2.4,
+        "sodiumMg": 43.0
+      },
+      "state": "樣品狀態:生; 前處理描述:去根部,混合均勻打碎",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "資料集單位重 30.0克",
+          "grams": 30.0
+        }
+      ],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:B0700201",
+      "source": "taiwan-fda",
+      "sourceId": "B0700201",
+      "name": "馬鈴薯",
+      "nameEn": "Potato; White potato; Irish potato",
+      "aliases": [
+        "馬鈴薯"
+      ],
+      "per100g": {
+        "energyKcal": 77.0,
+        "proteinG": 2.6,
+        "fatG": 0.2,
+        "carbohydrateG": 15.8,
+        "sodiumMg": 3.0
+      },
+      "state": "樣品狀態:生,黃皮種; 前處理描述:去皮,混合均勻打碎",
+      "group": "starch",
+      "produce": false,
+      "starchyRoot": true,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "資料集單位重 121.0克",
+          "grams": 121.0
+        }
+      ],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:E5800101",
+      "source": "taiwan-fda",
+      "sourceId": "E5800101",
+      "name": "花椰菜",
+      "nameEn": "Cauliflower",
+      "aliases": [
+        "花椰菜"
+      ],
+      "per100g": {
+        "energyKcal": 23.0,
+        "proteinG": 1.8,
+        "fatG": 0.1,
+        "carbohydrateG": 4.5,
+        "sodiumMg": 14.0
+      },
+      "state": "樣品狀態:生; 前處理描述:混合均勻打碎",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "資料集單位重 607.0克",
+          "grams": 607.0
+        }
+      ],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:E0200101",
+      "source": "taiwan-fda",
+      "sourceId": "E0200101",
+      "name": "胡蘿蔔",
+      "nameEn": "Carrot",
+      "aliases": [
+        "胡蘿蔔",
+        "紅蘿蔔"
+      ],
+      "per100g": {
+        "energyKcal": 37.0,
+        "proteinG": 1.0,
+        "fatG": 0.2,
+        "carbohydrateG": 8.5,
+        "sodiumMg": 67.0
+      },
+      "state": "樣品狀態:生; 前處理描述:去蒂及皮,混合均勻打碎",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "資料集單位重 189.0克",
+          "grams": 189.0
+        }
+      ],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:R2201501",
+      "source": "taiwan-fda",
+      "sourceId": "R2201501",
+      "name": "熟水餃(高麗菜水餃)",
+      "nameEn": "",
+      "aliases": [
+        "高麗菜水餃",
+        "熟水餃"
+      ],
+      "per100g": {
+        "energyKcal": 199.0,
+        "proteinG": 7.4,
+        "fatG": 10.1,
+        "carbohydrateG": 19.7,
+        "sodiumMg": 301.0
+      },
+      "state": "前處理描述:混合均勻打碎",
+      "group": "mixed",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "gluten"
+      ],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:O0701501",
+      "source": "taiwan-fda",
+      "sourceId": "O0701501",
+      "name": "鮮奶茶(無糖)",
+      "nameEn": "",
+      "aliases": [
+        "鮮奶茶",
+        "無糖鮮奶茶"
+      ],
+      "per100g": {
+        "energyKcal": 27.0,
+        "proteinG": 2.0,
+        "fatG": 1.4,
+        "carbohydrateG": 1.4,
+        "sodiumMg": 12.0
+      },
+      "state": "樣品狀態:現調飲料(紅茶,牛奶等); 前處理描述:混合均勻",
+      "group": "drink",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "dairy"
+      ],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "資料集單位重 234.0克",
+          "grams": 234.0
+        }
+      ],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:O0702201",
+      "source": "taiwan-fda",
+      "sourceId": "O0702201",
+      "name": "珍珠奶茶(去冰,全糖)",
+      "nameEn": "",
+      "aliases": [
+        "珍珠奶茶",
+        "全糖珍珠奶茶"
+      ],
+      "per100g": {
+        "energyKcal": 94.0,
+        "proteinG": 0.2,
+        "fatG": 2.4,
+        "carbohydrateG": 17.9,
+        "sodiumMg": null
+      },
+      "state": "樣品狀態:現調飲料(大杯,約700 mL); 前處理描述:混合均勻打碎,取上層澄清液分析",
+      "group": "drink",
+      "produce": false,
+      "starchyRoot": false,
+      "avoid": [
+        "dairy"
+      ],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "資料集單位重 251.0克",
+          "grams": 251.0
+        }
+      ],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:E3900101",
+      "source": "taiwan-fda",
+      "sourceId": "E3900101",
+      "name": "芥藍菜",
+      "nameEn": "Chinese kale",
+      "aliases": [
+        "芥藍",
+        "芥藍菜"
+      ],
+      "per100g": {
+        "energyKcal": 20.0,
+        "proteinG": 1.7,
+        "fatG": 0.3,
+        "carbohydrateG": 3.2,
+        "sodiumMg": 27.0
+      },
+      "state": "樣品狀態:生; 前處理描述:去粗莖,混合均勻打碎",
+      "group": "vegetable",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:B0400401",
+      "source": "taiwan-fda",
+      "sourceId": "B0400401",
+      "name": "紅肉甘藷",
+      "nameEn": "Sweet potato",
+      "aliases": [
+        "紅肉甘藷",
+        "地瓜",
+        "甘藷"
+      ],
+      "per100g": {
+        "energyKcal": 114.0,
+        "proteinG": 1.8,
+        "fatG": 0.2,
+        "carbohydrateG": 25.4,
+        "sodiumMg": 42.0
+      },
+      "state": "樣品狀態:生,紅皮紅肉; 前處理描述:去皮,混合均勻打碎",
+      "group": "starch",
+      "produce": false,
+      "starchyRoot": true,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "資料集單位重 121.0克",
+          "grams": 121.0
+        }
+      ],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:D3200404",
+      "source": "taiwan-fda",
+      "sourceId": "D3200404",
+      "name": "富士蘋果",
+      "nameEn": "Fu-Ji apple",
+      "aliases": [
+        "富士蘋果"
+      ],
+      "per100g": {
+        "energyKcal": 49.0,
+        "proteinG": 0.2,
+        "fatG": 0.1,
+        "carbohydrateG": 13.1,
+        "sodiumMg": 3.0
+      },
+      "state": "樣品狀態:混色; 前處理描述:去皮及核,混合均勻打碎",
+      "group": "fruit",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "資料集單位重 223.0克",
+          "grams": 223.0
+        }
+      ],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    },
+    {
+      "id": "tw:D0800401",
+      "source": "taiwan-fda",
+      "sourceId": "D0800401",
+      "name": "北蕉(3天)",
+      "nameEn": "Banana",
+      "aliases": [
+        "北蕉",
+        "香蕉"
+      ],
+      "per100g": {
+        "energyKcal": 84.0,
+        "proteinG": 1.4,
+        "fatG": 0.3,
+        "carbohydrateG": 21.3,
+        "sodiumMg": 0.0
+      },
+      "state": "樣品狀態:黃皮北蕉; 前處理描述:帶皮室溫存放3天,去皮,混合均勻打碎",
+      "group": "fruit",
+      "produce": true,
+      "starchyRoot": false,
+      "avoid": [],
+      "cuisine": [
+        "chinese"
+      ],
+      "portions": [
+        {
+          "label": "資料集單位重 104.0克",
+          "grams": 104.0
+        }
+      ],
+      "dataset": "Taiwan FDA open data export 20, file 20_2.csv, package modified 2026-10-05",
+      "datasetUrl": "https://data.gov.tw/dataset/8543",
+      "license": "政府資料開放授權條款第 1 版"
+    }
+  ]
+}

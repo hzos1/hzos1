@@ -1,0 +1,30 @@
+name,grams,expectedId,predictedId,nameCorrect,predictedKcal,truthKcal,sodiumPredicted,missingExpected
+白飯,200,tw:A0550601,tw:A0550601,true,366,366,4,false
+白米飯,150,tw:A0550601,tw:A0550601,true,274.5,274.5,3,false
+雞胸肉,120,tw:I0402102,tw:I0402102,true,127.2,127.2,52.8,false
+水煮蛋,50,tw:K0111101,tw:K0111101,true,72,72,62,false
+傳統豆腐,150,tw:R4700901,tw:R4700901,true,132,132,3,false
+青江菜,100,tw:E3201201,tw:E3201201,true,10,10,73,false
+叉燒,80,tw:R5100101,tw:R5100101,true,202.4,202.4,672.8,false
+全脂鮮乳,240,tw:L0102101,tw:L0102101,true,148.8,148.8,96,false
+牛番茄,169,tw:E7400101,tw:E7400101,true,32.1,32.1,3.4,false
+菠菜,80,tw:E5000101,tw:E5000101,true,14.4,14.4,34.4,false
+花椰菜,100,tw:E5800101,tw:E5800101,true,23,23,14,false
+芥藍,100,tw:E3900101,tw:E3900101,true,20,20,27,false
+胡蘿蔔,80,tw:E0200101,tw:E0200101,true,29.6,29.6,53.6,false
+香蕉,100,tw:D0800401,tw:D0800401,true,84,84,0,false
+富士蘋果,150,tw:D3200404,tw:D3200404,true,73.5,73.5,4.5,false
+廣東粥,300,tw:R0100101,tw:R0100101,true,243,243,813,false
+高麗菜水餃,150,tw:R2201501,tw:R2201501,true,298.5,298.5,451.5,false
+鮮奶茶,234,tw:O0701501,tw:O0701501,true,63.2,63.2,28.1,false
+珍珠奶茶,251,tw:O0702201,tw:O0702201,true,235.9,235.9,,false
+chicken breast,100,usda:171477,usda:171477,true,165,165,74,false
+cooked salmon,100,usda:175168,usda:175168,true,206,206,61,false
+banana,118,usda:173944,,false,,105,,false
+white rice,158,usda:168878,usda:168878,true,205.4,205.4,1.6,false
+boiled potato,100,usda:170440,usda:170440,true,86,86,5,false
+蛋撻,80,,,true,,,,true
+腸粉,200,,,true,,,,true
+菠蘿包,90,,,true,,,,true
+絲襪奶茶,300,,,true,,,,true
+雲吞麵,400,,,true,,,,true

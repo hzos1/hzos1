@@ -1,0 +1,101 @@
+# Meal agent
+
+DSC4070 / DSE4070 course demo. One responsive website for desktop and phone. It is not a native app.
+
+Register with email and password, including the body profile, then the default page is **今日概覽 / Home**. Chat is its own page in the main navigation, not the page after login. Profile stays under **更多**. The phone layout uses a bottom tab bar. The desktop layout uses a sidebar and a three-column home. There is no Google login.
+
+| Route | Page |
+| --- | --- |
+| `/register` | Email, password, body profile, and the disclaimer acknowledgement. Not in the tab bar. |
+| `/login` | Email and password. Restores the saved profile. |
+| `/home` | Today's energy from the saved profile, recent meal summary, 30-day update reminder. |
+| `/analyze` | Camera or album. Multimodal AI analyzes the photo for dish info and macros (energy, protein, carbs, fat, …); confirm to log. |
+| `/plan` | Day plan from the saved profile and cited rows, plus training-frequency comparison. |
+| `/chat` | Agent conversation with prompt starters. Not the page after login. |
+| `/more` | Link to profile. |
+| `/profile` | View and edit the body profile. |
+
+## Start
+
+```bash
+cd meal-agent
+npm install
+npm test
+npm start
+```
+
+- Computer: `http://127.0.0.1:8787` opens login. Register once, then the app lands on `/home`.
+- Phone camera needs a secure context. The server also listens on `https://<this-machine-LAN-ip>:8443` with a self-signed certificate in `meal-agent/certs/` (not committed). On the phone, open that HTTPS URL, accept the certificate warning, log in, then use **分析**.
+
+`npm start` preloads the dish-name model and, unless disabled, the local tool-choice model. Both download on first use into `meal-agent/.cache` (not committed).
+
+## What runs without API keys
+
+Structured pages send `brain: "deterministic"`. The controller still runs the loop and the same tools: estimate, lookup, suggest, checks, and training text. Nutrition numbers come from `data/foods.json`.
+
+Chat uses xAI Grok when `XAI_API_KEY` is set. The default model is `grok-4.7` (`POST https://api.x.ai/v1/chat/completions`). Gemini is not called. If the key is missing, chat tries local `onnx-community/Qwen2.5-0.5B-Instruct` once per turn. If that JSON is invalid, the harness recovers to the deterministic planner and the trace says so. Set `MEAL_AGENT_DISABLE_LOCAL_LLM=1` to skip that download. Final sentences are templates of tool observations.
+
+Passwords are scrypt hashes in `meal-agent/var/` (gitignored). The session cookie is httpOnly. Do not commit that directory or any key.
+
+## Environment
+
+PowerShell:
+
+```powershell
+$env:XAI_API_KEY = "your-key"
+npm start
+```
+
+Or create `meal-agent/.env` (gitignored) and restart `npm start`:
+
+```
+XAI_API_KEY=your-key
+```
+
+The process does not print the key. Optional `XAI_MODEL` overrides `grok-4.7`.
+
+| Variable | Use |
+| --- | --- |
+| `XAI_API_KEY` | Optional. Chat controller calls Grok. Not used for calories. |
+| `XAI_MODEL` | Optional. Defaults to `grok-4.7`. |
+| `FDC_API_KEY` | Optional. English names missing from the local table can query USDA FoodData Central. The response stores the FDC id. |
+| `MEAL_AGENT_DISABLE_LOCAL_LLM=1` | Do not load the local Qwen tool chooser. |
+| `PORT` / `HTTPS_PORT` | Default `8787` and `8443`. |
+
+## Cloudflare Quick Tunnel
+
+Point the tunnel at the HTTP server, not the self-signed HTTPS port:
+
+```bash
+cloudflared tunnel --url http://127.0.0.1:8787
+```
+
+Do not target port 8443. The public tunnel URL is HTTPS, so a phone can use the camera through it.
+
+## Tools
+
+The catalog is `GET /api/meta`. Calls are capped at 8 tools and 8 loops.
+
+- `save_profile` — copies only fields the user typed or submitted. Missing fields stay empty.
+- `estimate_needs` — Mifflin–St Jeor times FAO/WHO/UNU PAL 1.50 / 1.75 / 2.10. Cut is TDEE minus 500 kcal. Bulk is TDEE plus 400 kcal. Maintain is TDEE. A target below BMR is rejected.
+- `recognize_dish` — photo to multimodal AI (Grok vision). Returns dish info plus estimated energy, protein, carbohydrate, fat, and related fields. Needs `XAI_API_KEY`.
+- `lookup_meal` — after vision analysis, confirms and logs the AI estimate (scaled to grams). Typed dish names still use cited table rows when there is no vision pending.
+- `suggest_meal` — a cited day plan (or one next meal when the remaining budget is small), inside the remaining budget, with avoid tags applied. Grams, energy, and macros come from the table rows.
+- `check_constraints` — protein, energy shares, sodium, and fruit/vegetable checks from the cited public rules.
+- `training_guidance` — WHO 150 minutes and the 2-day muscle-strengthening reference, compared with the saved days. No sets or reps.
+
+## Eval
+
+```bash
+npm run eval
+```
+
+Writes `eval-output/results.json` and `results.csv`. Name accuracy is alias resolution against the cited table, not a photo study and not a clinical study. Calorie MAE/MAPE is only where a labeled row exists.
+
+## Phone path
+
+1. Open the HTTPS LAN URL, or a Cloudflare tunnel aimed at `http://127.0.0.1:8787`, and accept a certificate warning if you use the self-signed port.
+2. Register with email, password, height, weight, age, sex, activity, target weight, goal, training days, and the disclaimer checkbox. The app lands on `/home`.
+3. On a phone the bottom bar is 今日, 分析, 計劃, 聊天, 更多. On a wide window the same destinations are in the sidebar, and Home is three columns.
+4. On 分析, use 拍照, 相簿, or 開鏡頭. The multimodal AI returns nutrition estimates from the photo; confirm the name/grams to log them.
+5. 計劃 builds a cited day plan. 聊天 is its own page. 更多 opens 我的檔案.
