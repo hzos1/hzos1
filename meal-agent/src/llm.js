@@ -48,6 +48,7 @@ export const CONTROLLER_PROMPT = [
   "Never invent training sets. Do not invent table row ids. Photo nutrition comes only from the recognize_dish vision tool observation.",
   "After a vision analysis, confirm the dish name and grams before lookup_meal logs the estimate. Typed lookups still need name and grams in the user text.",
   "For a meal plan, call estimate_needs when needs are missing, then suggest_meal, then check_constraints.",
+  "For daily intake advice on Home, call estimate_needs when needs are missing, then recommend_intake so remaining macros use logged meals, weight, and target weight.",
   "A plan must keep the tool's day structure: breakfast, lunch, dinner, and snack when present.",
   "Copy each row's grams, kcal, protein, carbohydrate, and fat from the tool. Add only the tool's goal reason, prep note, and cited swap.",
   "Compare the day total with the tool's TDEE and classroom target. Do not replace those numbers.",
@@ -59,7 +60,7 @@ function promptFor(ctx) {
   return [
     CONTROLLER_PROMPT,
     "Select the next tool. Reply with JSON only.",
-    '{"tool":"lookup_meal|estimate_needs|training_guidance|suggest_meal|check_constraints|save_profile|stop","thought":"short"}',
+    '{"tool":"lookup_meal|estimate_needs|recommend_intake|training_guidance|suggest_meal|check_constraints|save_profile|stop","thought":"short"}',
     "Do not invent calories or training sets.",
     "Example user: 白飯 200克 -> {\"tool\":\"lookup_meal\",\"thought\":\"dish and grams are confirmed\"}",
     "Example user: 一星期練幾次 -> {\"tool\":\"training_guidance\",\"thought\":\"public frequency only\"}",

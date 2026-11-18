@@ -47,8 +47,9 @@ export function parseMessage(text) {
 
   const intents = {
     training: /練|訓練|運動|gym|train/i.test(raw),
-    plan: /餐單|下一餐|推薦|建議.*餐|晚餐|午餐|早餐|next meal|suggest|meal plan|一日/i.test(raw),
-    calories: /卡|熱量|kcal|calorie/i.test(raw),
+    plan: /餐單|下一餐|推薦.*餐|建議.*餐|晚餐|午餐|早餐|next meal|suggest meal|meal plan|一日餐/i.test(raw),
+    intake: /攝取|intake|remaining|剩餘熱量|daily intake|recommend.*intake|intake recommendation/i.test(raw),
+    calories: /卡|熱量|kcal|calorie|budget/i.test(raw),
     confirm: /確認|就係|就這|用這個|用呢個|\bconfirm\b/i.test(raw),
     profile: Object.keys(profile).length > 0,
   };

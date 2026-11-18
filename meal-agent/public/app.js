@@ -15,7 +15,7 @@ const PAGES = {
   "/chat": "pageChat",
   "/profile": "pageProfile",
 };
-let lang = localStorage.getItem(LANG_KEY) === "en" ? "en" : "zh";
+let lang = localStorage.getItem(LANG_KEY) === "zh" ? "zh" : "en";
 let me = null;
 let image = null;
 let stream = null;
@@ -203,19 +203,51 @@ function renderProfile() {
   });
 }
 
+function renderIntakeCard(rec) {
+  const host = document.querySelector("#intake");
+  if (!host) return;
+  if (!rec?.ok) {
+    host.innerHTML = `<p>${t("homeIntakeFail")}${rec?.reason || rec?.reasonEn ? `：${escapeHtml(lang === "en" ? (rec.reasonEn || rec.reason) : (rec.reason || rec.reasonEn))}` : ""}</p>`;
+    return;
+  }
+  const tip = lang === "en" ? rec.tipEn : rec.tip;
+  host.innerHTML = `
+    <p class="meta">${t("homeWeightPath")}：${rec.weightKg} → ${rec.targetWeightKg} kg · ${escapeHtml(rec.goal || "")}</p>
+    <p class="intake-label">${t("homeTarget")}</p>
+    <div class="macro-pill"><span>kcal<b>${rec.target.energyKcal}</b></span><span>${t("protein")}<b>${rec.target.proteinG}g</b></span><span>${t("carb")}<b>${rec.target.carbohydrateG}g</b></span><span>${t("fat")}<b>${rec.target.fatG}g</b></span></div>
+    <p class="intake-label">${t("homeLogged")}（${rec.mealsLogged}）</p>
+    <div class="macro-pill muted-pill"><span>kcal<b>${rec.eaten.energyKcal}</b></span><span>${t("protein")}<b>${rec.eaten.proteinG}g</b></span><span>${t("carb")}<b>${rec.eaten.carbohydrateG}g</b></span><span>${t("fat")}<b>${rec.eaten.fatG}g</b></span></div>
+    <p class="intake-label">${t("homeRemaining")}</p>
+    <div class="macro-pill"><span>kcal<b>${rec.remaining.energyKcal}</b></span><span>${t("protein")}<b>${rec.remaining.proteinG}g</b></span><span>${t("carb")}<b>${rec.remaining.carbohydrateG}g</b></span><span>${t("fat")}<b>${rec.remaining.fatG}g</b></span></div>
+    <p class="intake-tip">${escapeHtml(tip)}</p>`;
+}
+
 function renderHome() {
-  view.innerHTML = `<div class="home-grid"><section class="card"><h2>${t("homeEnergy")}</h2>${reminderHtml()}<p id="budget">${t("budgetLoading")}</p></section><section class="card"><h2>${t("homeMeals")}</h2><div id="meals"></div></section><section class="card"><h2>${t("homeTips")}</h2><p>${t("tip1")}</p><p>${t("tip2")}</p><p>${t("tip3")}</p></section></div><section class="card"><h2>${t("homeTrace")}</h2><div id="trace"></div></section>`;
+  view.innerHTML = `<div class="home-grid"><section class="card"><h2>${t("homeEnergy")}</h2>${reminderHtml()}<p id="budget">${t("budgetLoading")}</p></section><section class="card"><h2>${t("homeMeals")}</h2><div id="meals"></div></section><section class="card"><h2>${t("homeIntake")}</h2><div id="intake">${t("homeIntakeLoading")}</div></section></div><section class="card"><h2>${t("homeTrace")}</h2><div id="trace"></div></section>`;
   renderMeals();
-  ask({ message: lang === "en" ? "Calculate today's calorie budget" : "請計算今日熱量預算", brain: "deterministic" }).then((data) => {
+  ask({
+    message: lang === "en"
+      ? "Calculate today's calorie budget and recommend daily intake from my weight, target weight, and logged meals"
+      : "請計算今日熱量預算，並根據體重、目標體重與已記錄餐點推薦每日攝取",
+    brain: "deterministic",
+  }).then((data) => {
     if (data.user) me = data.user;
     const needs = data.memory?.needs;
     const budget = document.querySelector("#budget");
-    if (!budget) return;
-    budget.innerHTML = needs?.ok
-      ? `<div class="kcal">${needs.targetKcal}</div><p>BMR ${needs.bmrKcal}&nbsp;kcal · PAL ${needs.pal} · TDEE ${needs.tdeeKcal}&nbsp;kcal</p>`
-      : `${t("budgetBad")}：${escapeHtml((needs?.errors || ["invalid-profile"]).join(", "))}`;
+    if (budget) {
+      budget.innerHTML = needs?.ok
+        ? `<div class="kcal">${needs.targetKcal}</div><p>BMR ${needs.bmrKcal}&nbsp;kcal · PAL ${needs.pal} · TDEE ${needs.tdeeKcal}&nbsp;kcal</p>`
+        : `${t("budgetBad")}：${escapeHtml((needs?.errors || ["invalid-profile"]).join(", "))}`;
+    }
+    renderIntakeCard(data.memory?.intakeRecommendation);
+    renderMeals();
     renderTrace(data);
-  }).catch(() => { const budget = document.querySelector("#budget"); if (budget) budget.textContent = t("budgetFail"); });
+  }).catch(() => {
+    const budget = document.querySelector("#budget");
+    if (budget) budget.textContent = t("budgetFail");
+    const intake = document.querySelector("#intake");
+    if (intake) intake.textContent = t("homeIntakeFail");
+  });
 }
 
 function renderMeals() {
@@ -548,7 +580,12 @@ async function useFile(file) {
 function renderPlan() {
   view.innerHTML = `<section class="card"><h2>${t("pagePlan")}</h2><p>${t("planLead")}</p><button id="make-plan" type="button">${t("planButton")}</button><div id="result"></div></section><section class="card"><h2>${t("homeTrace")}</h2><div id="trace"></div></section>`;
   document.querySelector("#make-plan").addEventListener("click", async () => {
-    const data = await ask({ message: lang === "en" ? "Build a day meal plan from my profile and the training days" : "請用檔案做一日餐單，並講訓練次數", brain: "deterministic" });
+    const data = await ask({
+      message: lang === "en"
+        ? "Build a day meal plan from my profile and the training days. Call suggest_meal for specific cited foods for breakfast, lunch, dinner, and snack when the budget allows."
+        : "請用檔案做一日餐單並講訓練次數。請呼叫 suggest_meal，為早餐、午餐、晚餐（預算夠時加小食）列出具體資料表食物。",
+      brain: "deterministic",
+    });
     if (data.user) me = data.user;
     renderTrace(data);
     const plan = data.memory?.plan;
@@ -557,7 +594,7 @@ function renderPlan() {
     const advice = lang === "en" ? (data.memory?.checks?.adviceEn || []) : (data.memory?.checks?.advice || []);
     const profileLine = lang === "en" ? (plan?.profileLineEn || "") : (plan?.profileLine || "");
     const comparison = lang === "en" ? (plan?.comparisonEn || plan?.reasonEn || plan?.reason || "") : (plan?.comparison || plan?.reason || "");
-    document.querySelector("#result").innerHTML = `<p>${escapeHtml(trainingText)}</p><p>${plan?.passedChecks ? t("planPassed") : t("planFailed")}</p><p>${escapeHtml(profileLine)}</p>${mealBlocks(plan)}<p>${escapeHtml(comparison)}</p><p>${escapeHtml(advice.join(" "))}</p>`;
+    document.querySelector("#result").innerHTML = `<p>${escapeHtml(trainingText)}</p><p>${plan?.passedChecks ? t("planPassed") : t("planFailed")}</p><p>${escapeHtml(profileLine)}</p>${mealBlocks(plan)}<p>${escapeHtml(comparison)}</p><p>${escapeHtml(advice.join(" "))}</p>${foodRecommendations(plan)}`;
   });
 }
 function mealBlocks(plan) {
@@ -575,9 +612,28 @@ function mealBlocks(plan) {
     }).join("");
     const reason = lang === "en" ? meal.reasonEn : meal.reason;
     const prep = lang === "en" ? meal.prepEn : meal.prep;
-    const swap = lang === "en" ? meal.swapEn : meal.swap;
-    return `<article class="meal-block"><h3>${escapeHtml(title || "")} · ${meal.totalKcal} kcal</h3><ul>${foods}</ul><p>${escapeHtml(reason || "")}</p><p>${escapeHtml(prep || "")}</p><p>${escapeHtml(swap || "")}</p></article>`;
+    return `<article class="meal-block"><h3>${escapeHtml(title || "")} · ${meal.totalKcal} kcal</h3><ul>${foods}</ul><p>${escapeHtml(reason || "")}</p><p>${escapeHtml(prep || "")}</p></article>`;
   }).join("");
+}
+function foodRecommendations(plan) {
+  const meals = plan?.meals || [];
+  const flat = meals.length
+    ? meals.flatMap((meal) => (meal.items || []).map((item) => ({ ...item, slotTitle: lang === "en" ? meal.en : meal.zh })))
+    : (plan?.items || []).map((item) => ({ ...item, slotTitle: "" }));
+  if (!flat.length) {
+    return `<section class="plan-food-rec"><h3>${t("planFoodRec")}</h3><p class="meta">${t("planFoodEmpty")}</p></section>`;
+  }
+  const cards = flat.map((item) => {
+    const name = lang === "en" ? (item.nameEn || item.name) : item.name;
+    const row = item.nutrients || {};
+    const slot = item.slotTitle ? `<span class="plan-food-slot">${escapeHtml(item.slotTitle)}</span>` : "";
+    return `<article class="food-chip plan-food-card">${slot}<strong>${escapeHtml(name || "")}</strong><span>${row.energyKcal ?? "—"} kcal</span><p class="meta">${item.grams ?? "—"} ${t("grams")} · ${t("protein")} ${row.proteinG ?? "—"} g · ${t("carb")} ${row.carbohydrateG ?? "—"} g · ${t("fat")} ${row.fatG ?? "—"} g</p><p class="meta">${t("source")} ${escapeHtml(item.sourceId || "")}</p></article>`;
+  }).join("");
+  const swaps = meals.map((meal) => (lang === "en" ? meal.swapEn : meal.swap)).filter(Boolean);
+  const swapBlock = swaps.length
+    ? `<h4>${t("planAlternatives")}</h4><ul class="plan-swap-list">${swaps.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`
+    : "";
+  return `<section class="plan-food-rec"><h3>${t("planFoodRec")}</h3><p class="meta">${t("planFoodRecLead")}</p><div class="chip-grid plan-food-grid">${cards}</div>${swapBlock}</section>`;
 }
 
 function renderMore() {

@@ -55,6 +55,15 @@ export function observationText(tool, result, lang = "zh") {
       ? `BMR ${result.bmrKcal} kcal, PAL ${result.pal}, TDEE ${result.tdeeKcal} kcal, classroom target ${result.targetKcal} kcal (adjustment ${result.adjustmentKcal} kcal). Target weight ${result.targetWeightKg} kg.`
       : `BMR ${result.bmrKcal} kcal，PAL ${result.pal}，TDEE ${result.tdeeKcal} kcal，課堂目標 ${result.targetKcal} kcal（調整 ${result.adjustmentKcal} kcal）。目標體重 ${result.targetWeightKg} kg。`;
   }
+  if (tool === "recommend_intake") {
+    if (!result.ok) return en
+      ? (result.reasonEn || result.reason || "Could not build a daily intake recommendation.")
+      : (result.reason || "未能建立每日攝取建議。");
+    const tip = en ? result.tipEn : result.tip;
+    return en
+      ? `Daily target ${result.target.energyKcal} kcal (protein ${result.target.proteinG} g, carbs ${result.target.carbohydrateG} g, fat ${result.target.fatG} g). Weight ${result.weightKg} → ${result.targetWeightKg} kg. Logged ${result.eaten.energyKcal} kcal; ${result.remaining.energyKcal} kcal left. ${tip}`
+      : `每日目標 ${result.target.energyKcal} kcal（蛋白質 ${result.target.proteinG} g、碳水 ${result.target.carbohydrateG} g、脂肪 ${result.target.fatG} g）。體重 ${result.weightKg} → ${result.targetWeightKg} kg。已記錄 ${result.eaten.energyKcal} kcal，剩餘 ${result.remaining.energyKcal} kcal。${tip}`;
+  }
   if (tool === "training_guidance") return `${textOf(result, lang, "text", "textEn")} ${textOf(result, lang, "statedNote", "statedNoteEn")} ${textOf(result, lang, "muscleNote", "muscleNoteEn")}`.trim();
   if (tool === "suggest_meal") {
     if (!result.items?.length) return textOf(result, lang, "reason", "reasonEn") || (en ? "No dish to suggest." : "沒有可推薦的菜式。");

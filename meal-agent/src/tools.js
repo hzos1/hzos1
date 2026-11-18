@@ -1,5 +1,6 @@
 import { lookupFood, foodById, nutrientsFor, lookupUsdaLive, proposalForLabel, round1 } from "./foods.js";
 import { estimateNeeds } from "./needs.js";
+import { buildDailyIntakeRecommendation } from "./intake.js";
 import { checkConstraints } from "./health.js";
 import { suggestMeal, verifyPlan, annotatePlan } from "./suggest.js";
 import { trainingGuidance } from "./training.js";
@@ -21,6 +22,19 @@ export async function executeTool(tool, input, ctx) {
       if (!result.ok) memory.plan = null;
       recompute(memory);
     }
+    return result;
+  }
+  if (tool === "recommend_intake") {
+    recompute(memory);
+    if (!memory.needs || memory.needs.incomplete) {
+      const needs = estimateNeeds(memory.profile || {});
+      if (!needs.incomplete) {
+        memory.needs = needs;
+        recompute(memory);
+      }
+    }
+    const result = buildDailyIntakeRecommendation(memory);
+    memory.intakeRecommendation = result;
     return result;
   }
   if (tool === "training_guidance") {
