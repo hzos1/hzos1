@@ -222,10 +222,8 @@ function renderIntakeCard(rec) {
     <p class="intake-tip">${escapeHtml(tip)}</p>`;
 }
 
-function renderHome() {
-  view.innerHTML = `<div class="home-grid"><section class="card"><h2>${t("homeEnergy")}</h2>${reminderHtml()}<p id="budget">${t("budgetLoading")}</p></section><section class="card"><h2>${t("homeMeals")}</h2><div id="meals"></div></section><section class="card"><h2>${t("homeIntake")}</h2><div id="intake">${t("homeIntakeLoading")}</div></section></div><section class="card"><h2>${t("homeTrace")}</h2><div id="trace"></div></section>`;
-  renderMeals();
-  ask({
+function refreshHomeBudget() {
+  return ask({
     message: lang === "en"
       ? "Calculate today's calorie budget and recommend daily intake from my weight, target weight, and logged meals"
       : "請計算今日熱量預算，並根據體重、目標體重與已記錄餐點推薦每日攝取",
@@ -242,6 +240,7 @@ function renderHome() {
     renderIntakeCard(data.memory?.intakeRecommendation);
     renderMeals();
     renderTrace(data);
+    return data;
   }).catch(() => {
     const budget = document.querySelector("#budget");
     if (budget) budget.textContent = t("budgetFail");
@@ -250,11 +249,171 @@ function renderHome() {
   });
 }
 
+function renderHome() {
+  view.innerHTML = `<div class="home-grid"><section class="card"><h2>${t("homeEnergy")}</h2>${reminderHtml()}<p id="budget">${t("budgetLoading")}</p></section><section class="card"><h2>${t("homeMeals")}</h2><div id="meals"></div></section><section class="card"><h2>${t("homeIntake")}</h2><div id="intake">${t("homeIntakeLoading")}</div></section></div><section class="card"><h2>${t("homeTrace")}</h2><div id="trace"></div></section>`;
+  renderMeals();
+  refreshHomeBudget();
+}
+
+function mealDraftFromUser() {
+  return (me.meals || []).map((meal) => ({
+    ...meal,
+    name: meal.name || meal.nameEn || "",
+    grams: meal.grams ?? 0,
+    nutrients: {
+      energyKcal: meal.nutrients?.energyKcal ?? 0,
+      proteinG: meal.nutrients?.proteinG ?? 0,
+      carbohydrateG: meal.nutrients?.carbohydrateG ?? 0,
+      fatG: meal.nutrients?.fatG ?? 0,
+      sodiumMg: meal.nutrients?.sodiumMg ?? null,
+    },
+  }));
+}
+
 function renderMeals() {
   const host = document.querySelector("#meals");
   if (!host) return;
   const meals = me.meals || [];
-  host.innerHTML = meals.length ? meals.slice(-5).reverse().map((meal) => `<p>${escapeHtml(meal.name)} ${meal.grams} ${t("grams")}：${meal.nutrients?.energyKcal ?? t("noEnergy")} kcal。${t("source")} ${escapeHtml(meal.sourceId || t("neverSaved"))}</p>`).join("") : `<p>${t("emptyMeals")}</p>`;
+  if (!meals.length) {
+    host.innerHTML = `<p>${t("emptyMeals")}</p><p class="note">${t("editMealsHint")}</p><div class="actions meal-edit-actions"><button id="add-home-meal" class="secondary" type="button">${t("addMeal")}</button></div><p id="meals-error" class="error"></p>`;
+    document.querySelector("#add-home-meal")?.addEventListener("click", () => openMealEditor([...mealDraftFromUser(), blankHomeMeal()]));
+    return;
+  }
+  host.innerHTML = `
+    <div class="meal-list">${meals.map((meal, index) => `
+      <div class="meal-row" data-meal-index="${index}">
+        <div>
+          <strong>${escapeHtml(meal.name || meal.nameEn || t("dish"))}</strong>
+          <p class="meta">${meal.grams ?? 0} ${t("grams")} · ${meal.nutrients?.energyKcal ?? t("noEnergy")} kcal · P ${meal.nutrients?.proteinG ?? 0}g · C ${meal.nutrients?.carbohydrateG ?? 0}g · F ${meal.nutrients?.fatG ?? 0}g</p>
+          <p class="meta">${t("source")} ${escapeHtml(meal.sourceId || t("neverSaved"))}</p>
+        </div>
+        <div class="actions meal-row-actions">
+          <button type="button" class="secondary meal-edit" data-index="${index}">${t("editMeal")}</button>
+          <button type="button" class="secondary meal-delete" data-index="${index}">${t("deleteMeal")}</button>
+        </div>
+      </div>`).join("")}</div>
+    <div class="actions meal-edit-actions">
+      <button id="edit-all-meals" class="secondary" type="button">${t("editMeals")}</button>
+      <button id="add-home-meal" class="secondary" type="button">${t("addMeal")}</button>
+      <button id="clear-meals" class="secondary" type="button">${t("clearMeals")}</button>
+    </div>
+    <p id="meals-error" class="error"></p>`;
+  document.querySelector("#edit-all-meals")?.addEventListener("click", () => openMealEditor(mealDraftFromUser()));
+  document.querySelector("#add-home-meal")?.addEventListener("click", () => openMealEditor([...mealDraftFromUser(), blankHomeMeal()]));
+  document.querySelector("#clear-meals")?.addEventListener("click", () => clearTodayMeals());
+  host.querySelectorAll(".meal-edit").forEach((btn) => {
+    btn.addEventListener("click", () => openMealEditor(mealDraftFromUser(), Number(btn.dataset.index)));
+  });
+  host.querySelectorAll(".meal-delete").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const next = mealDraftFromUser();
+      next.splice(Number(btn.dataset.index), 1);
+      saveMeals(next);
+    });
+  });
+}
+
+async function clearTodayMeals() {
+  if (!window.confirm(t("clearMealsConfirm"))) return;
+  await saveMeals([]);
+}
+
+function blankHomeMeal() {
+  return {
+    name: "",
+    grams: 100,
+    status: "resolved",
+    source: "user-edited",
+    sourceId: "user:edited",
+    nutrients: { energyKcal: 0, proteinG: 0, carbohydrateG: 0, fatG: 0, sodiumMg: null },
+    micros: {},
+    items: [],
+  };
+}
+
+function openMealEditor(draft, focusIndex = null) {
+  const host = document.querySelector("#meals");
+  if (!host) return;
+  const rows = draft.map((meal, index) => `
+    <div class="meal-edit-row" data-edit-index="${index}">
+      <label>${t("dish")}<input data-field="name" value="${escapeHtml(meal.name || "")}" ${focusIndex === index ? "autofocus" : ""}></label>
+      <div class="meal-edit-grid">
+        <label>${t("grams")}<input data-field="grams" type="number" min="0" step="1" value="${meal.grams ?? 0}"></label>
+        <label>kcal<input data-field="energyKcal" type="number" min="0" step="1" value="${meal.nutrients?.energyKcal ?? 0}"></label>
+        <label>${t("protein")}<input data-field="proteinG" type="number" min="0" step="0.1" value="${meal.nutrients?.proteinG ?? 0}"></label>
+        <label>${t("carb")}<input data-field="carbohydrateG" type="number" min="0" step="0.1" value="${meal.nutrients?.carbohydrateG ?? 0}"></label>
+        <label>${t("fat")}<input data-field="fatG" type="number" min="0" step="0.1" value="${meal.nutrients?.fatG ?? 0}"></label>
+      </div>
+      <button type="button" class="secondary remove-edit-meal" data-index="${index}">${t("deleteMeal")}</button>
+    </div>`).join("");
+  host.innerHTML = `
+    <p class="note">${t("editMealsLead")}</p>
+    <div id="meal-editor">${rows || `<p>${t("emptyMeals")}</p>`}</div>
+    <div class="actions meal-edit-actions">
+      <button id="add-edit-meal" class="secondary" type="button">${t("addMeal")}</button>
+      <button id="save-meals" type="button">${t("saveMeals")}</button>
+      <button id="cancel-meals" class="secondary" type="button">${t("cancelEdit")}</button>
+    </div>
+    <p id="meals-error" class="error"></p>`;
+
+  const readDraft = () => [...host.querySelectorAll(".meal-edit-row")].map((row, index) => {
+    const val = (field) => row.querySelector(`[data-field="${field}"]`)?.value;
+    const prev = draft[index] || {};
+    return {
+      ...prev,
+      name: String(val("name") || "").trim() || t("dish"),
+      grams: Number(val("grams")) || 0,
+      status: "resolved",
+      source: prev.source || "user-edited",
+      sourceId: prev.sourceId || "user:edited",
+      nutrients: {
+        ...(prev.nutrients || {}),
+        energyKcal: Number(val("energyKcal")) || 0,
+        proteinG: Number(val("proteinG")) || 0,
+        carbohydrateG: Number(val("carbohydrateG")) || 0,
+        fatG: Number(val("fatG")) || 0,
+      },
+      micros: prev.micros && typeof prev.micros === "object" ? prev.micros : {},
+      items: Array.isArray(prev.items) ? prev.items : [],
+    };
+  });
+
+  document.querySelector("#add-edit-meal")?.addEventListener("click", () => openMealEditor([...readDraft(), blankHomeMeal()]));
+  document.querySelector("#cancel-meals")?.addEventListener("click", () => renderMeals());
+  document.querySelector("#save-meals")?.addEventListener("click", () => saveMeals(readDraft()));
+  host.querySelectorAll(".remove-edit-meal").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const next = readDraft();
+      next.splice(Number(btn.dataset.index), 1);
+      openMealEditor(next);
+    });
+  });
+}
+
+async function saveMeals(meals) {
+  const err = document.querySelector("#meals-error");
+  if (err) err.textContent = "";
+  try {
+    const response = await fetch("/api/meals", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ meals }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      if (err) err.textContent = t("saveMealsFail");
+      return;
+    }
+    me = data.user;
+    renderMeals();
+    const intake = document.querySelector("#intake");
+    if (intake) intake.textContent = t("homeIntakeLoading");
+    const budget = document.querySelector("#budget");
+    if (budget) budget.textContent = t("budgetLoading");
+    await refreshHomeBudget();
+  } catch {
+    if (err) err.textContent = t("saveMealsFail");
+  }
 }
 
 function renderAnalyze() {

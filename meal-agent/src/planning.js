@@ -16,8 +16,9 @@ export function deterministicStep(ctx) {
     return { tool: "training_guidance", agent: "training", thought: "訓練次數改由公開指引工具回答，不編成一套訓練課。", input: {} };
   }
   const wantsBudget = parsed.intents.calories || parsed.intents.plan || parsed.intents.intake || (parsed.intents.profile && parsed.profile.goal);
-  if (wantsBudget && !memory.needs && !done.estimate_needs) {
-    return { tool: "estimate_needs", agent: "nutrition", thought: "用 Mifflin–St Jeor × FAO PAL 計算每日預算。公式由工具計算。", input: {} };
+  // Always refresh needs when budget/intake is requested so activity/weight/goal edits apply.
+  if (wantsBudget && !done.estimate_needs) {
+    return { tool: "estimate_needs", agent: "nutrition", thought: "用 Mifflin–St Jeor × FAO PAL 重新計算每日預算（反映最新活動量／體重／目標）。", input: {} };
   }
   if ((parsed.intents.calories || parsed.intents.intake) && memory.needs && !memory.needs.rejected && !done.recommend_intake) {
     return { tool: "recommend_intake", agent: "nutrition", thought: "用體重、目標體重、課堂熱量目標與已記錄餐點，計算今日建議攝取與剩餘。", input: {} };

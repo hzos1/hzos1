@@ -57,6 +57,7 @@ export function applySavedProfile(memory, input) {
     memory.needs = null;
     memory.plan = null;
     memory.checks = null;
+    memory.intakeRecommendation = null;
   }
   return check;
 }

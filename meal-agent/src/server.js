@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { networkInterfaces } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createMemory } from "./memory.js";
+import { createMemory, recompute } from "./memory.js";
 import { runTurn, deterministicBrain, autoBrain, DISCLAIMER } from "./agent.js";
 import { toolCatalog, LIMITS } from "./harness.js";
 import { llmStatus, preloadLocalModel } from "./llm.js";
@@ -143,11 +143,62 @@ async function handle(request, response) {
     saveUser(user);
     const memory = agentSessions.get(user.id);
     if (memory) {
+      memory.profile = check.profile;
+      memory.avoid = user.avoid;
       memory.needs = null;
       memory.plan = null;
       memory.checks = null;
+      memory.intakeRecommendation = null;
     }
     send(response, 200, JSON.stringify({ user: publicUser(user) }));
+    return;
+  }
+  if (request.method === "PUT" && url.pathname === "/api/meals") {
+    const user = currentUser(request);
+    if (!user) { send(response, 401, JSON.stringify({ error: "unauthorized" })); return; }
+    const payload = JSON.parse(await readBody(request) || "{}");
+    const num = (value) => {
+      const n = Number(value);
+      return Number.isFinite(n) ? Math.round(n * 10) / 10 : null;
+    };
+    const meals = (Array.isArray(payload.meals) ? payload.meals : []).slice(0, 30).map((meal) => {
+      const nutrients = {
+        energyKcal: num(meal?.nutrients?.energyKcal) ?? 0,
+        proteinG: num(meal?.nutrients?.proteinG) ?? 0,
+        carbohydrateG: num(meal?.nutrients?.carbohydrateG) ?? 0,
+        fatG: num(meal?.nutrients?.fatG) ?? 0,
+        sodiumMg: num(meal?.nutrients?.sodiumMg),
+      };
+      return {
+        name: String(meal?.name || meal?.nameEn || "Meal").slice(0, 120),
+        grams: num(meal?.grams) ?? 0,
+        status: meal?.status === "missing" ? "missing" : "resolved",
+        foodId: meal?.foodId || null,
+        source: meal?.source || "user-edited",
+        sourceId: String(meal?.sourceId || "user:edited").slice(0, 80),
+        group: meal?.group || "manual",
+        produce: Boolean(meal?.produce),
+        starchyRoot: Boolean(meal?.starchyRoot),
+        state: meal?.state || "user-edited",
+        nutrients,
+        micros: meal?.micros && typeof meal.micros === "object" ? meal.micros : {},
+        items: Array.isArray(meal?.items) ? meal.items : [],
+        vision: Boolean(meal?.vision),
+        notes: String(meal?.notes || "").slice(0, 400),
+      };
+    });
+    user.meals = meals;
+    user.updatedAt = new Date().toISOString();
+    saveUser(user);
+    let memory = agentSessions.get(user.id);
+    if (!memory) memory = createMemory();
+    memory.meals = meals;
+    memory.plan = null;
+    memory.checks = null;
+    memory.intakeRecommendation = null;
+    recompute(memory);
+    agentSessions.set(user.id, memory);
+    send(response, 200, JSON.stringify({ user: publicUser(user), memory: { meals: memory.meals, eaten: memory.eaten, remainingKcal: memory.remainingKcal } }));
     return;
   }
   if (request.method === "POST" && url.pathname === "/api/reminder") {
@@ -163,10 +214,10 @@ async function handle(request, response) {
     if (!user) { send(response, 401, JSON.stringify({ error: "unauthorized" })); return; }
     const payload = JSON.parse(await readBody(request) || "{}");
     let memory = agentSessions.get(user.id);
-    if (!memory) {
-      memory = createMemory();
-      memory.meals = Array.isArray(user.meals) ? user.meals : [];
-    }
+    if (!memory) memory = createMemory();
+    // Prefer persisted meals so profile/meal edits on Home stay in sync with the agent session.
+    memory.meals = Array.isArray(user.meals) ? user.meals : [];
+    recompute(memory);
     const brain = payload.brain === "deterministic" || process.env.MEAL_AGENT_DISABLE_LOCAL_LLM === "1" ? deterministicBrain() : autoBrain();
     if (payload.visionOverride) {
       const override = payload.visionOverride;
